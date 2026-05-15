@@ -1,0 +1,3451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>云锦长安 · 人才库管理后台</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a2522;
+    --ink-soft: #5a4f49;
+    --ink-light: #8b7e74;
+    --paper: #f5efe6;
+    --paper-warm: #ebe3d4;
+    --bg: #faf6ef;
+    --rouge: #a02c2c;
+    --rouge-deep: #7a1f1f;
+    --gold: #b8935a;
+    --line: #d9cdb8;
+    --line-soft: #e8dfd0;
+    --white: #ffffff;
+    --green: #5a7d4f;
+    --orange: #c97a3c;
+    --shadow: 0 4px 16px rgba(42, 37, 34, 0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* 侧边栏 */
+  .sidebar {
+    width: 220px; background: var(--ink); color: var(--paper);
+    padding: 26px 0; min-height: 100vh; flex-shrink: 0;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .logo {
+    padding: 0 26px 26px; border-bottom: 1px solid rgba(245,239,230,0.1);
+    margin-bottom: 14px;
+  }
+  .logo-cn { font-size: 22px; letter-spacing: 6px; font-weight: 600; margin-bottom: 4px; }
+  .logo-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px; color: var(--gold); letter-spacing: 2px; }
+  .nav { padding: 6px 0; }
+  .nav-section { padding: 12px 26px 8px; font-size: 11px; color: var(--ink-light); letter-spacing: 3px; }
+  .nav-item {
+    padding: 12px 26px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; letter-spacing: 2px;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(245,239,230,0.06); }
+  .nav-item.active { background: rgba(160,44,44,0.2); border-left-color: var(--rouge); color: white; }
+  .nav-item .count {
+    margin-left: auto; background: rgba(184,147,90,0.25);
+    color: var(--gold); padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* 主区 */
+  .main { flex: 1; padding: 30px 36px; min-width: 0; }
+  .page-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 24px; font-weight: 600; letter-spacing: 4px; }
+  .page-title small { color: var(--ink-light); font-size: 13px; font-weight: 400; margin-left: 12px; letter-spacing: 1px; }
+  .actions { display: flex; gap: 10px; }
+  .btn {
+    padding: 8px 16px; border: 1px solid var(--line); background: var(--white);
+    cursor: pointer; font-family: inherit; font-size: 13px; letter-spacing: 2px;
+    transition: all 0.2s; color: var(--ink);
+  }
+  .btn:hover { border-color: var(--rouge); color: var(--rouge); }
+  .btn-primary { background: var(--rouge); color: white; border-color: var(--rouge); }
+  .btn-primary:hover { background: var(--rouge-deep); color: white; }
+  .btn-dark { background: var(--ink); color: white; border-color: var(--ink); }
+  .btn-dark:hover { background: #000; color: white; }
+  .btn-ai {
+    background: linear-gradient(135deg, #b8935a 0%, #a02c2c 100%);
+    color: white !important; border: none;
+    box-shadow: 0 2px 8px rgba(160,44,44,0.25);
+    display: inline-flex; align-items: center;
+  }
+  .btn-ai:hover {
+    box-shadow: 0 4px 12px rgba(160,44,44,0.35);
+    transform: translateY(-1px); color: white !important;
+  }
+  .nav-item-ai {
+    background: linear-gradient(90deg, rgba(184,147,90,0.18), rgba(160,44,44,0.12));
+    color: white !important; border-left: 3px solid var(--gold) !important;
+    font-weight: 500; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-item-ai:hover { background: linear-gradient(90deg, rgba(184,147,90,0.3), rgba(160,44,44,0.2)) !important; }
+
+  /* ===== AI 智能录入页 ===== */
+  .ai-hero {
+    background: linear-gradient(135deg, #2a2522 0%, #5a4f49 100%);
+    color: var(--paper); padding: 28px 32px;
+    border-left: 4px solid var(--gold);
+    margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .ai-hero::after {
+    content: 'AI'; position: absolute; right: -10px; top: -20px;
+    font-family: 'Cormorant Garamond', serif; font-size: 140px;
+    color: rgba(184,147,90,0.1); font-weight: 700; letter-spacing: -8px;
+    pointer-events: none;
+  }
+  .ai-hero h2 { font-size: 22px; letter-spacing: 4px; margin-bottom: 8px; position: relative; z-index: 1; }
+  .ai-hero p { font-size: 13px; opacity: 0.85; line-height: 1.8; position: relative; z-index: 1; }
+
+  .ai-tabs { display: flex; gap: 0; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .ai-tab {
+    padding: 12px 24px; cursor: pointer; font-size: 14px;
+    color: var(--ink-soft); letter-spacing: 2px;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .ai-tab.active { color: var(--rouge); border-bottom-color: var(--rouge); font-weight: 500; }
+
+  .ai-input-area {
+    background: white; padding: 24px; border: 1px solid var(--line-soft);
+    margin-bottom: 16px;
+  }
+  .ai-textarea {
+    width: 100%; min-height: 220px; padding: 14px;
+    border: 1px solid var(--line); background: var(--bg);
+    font-family: inherit; font-size: 13px; line-height: 1.8;
+    resize: vertical; color: var(--ink);
+  }
+  .ai-textarea:focus { outline: none; border-color: var(--rouge); background: white; }
+
+  .ai-image-drop {
+    border: 2px dashed var(--line); background: var(--paper);
+    padding: 40px 20px; text-align: center; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ai-image-drop:hover, .ai-image-drop.dragover {
+    border-color: var(--rouge); background: rgba(160,44,44,0.03);
+  }
+  .ai-image-drop .icon { font-size: 36px; color: var(--ink-light); margin-bottom: 10px; }
+  .ai-image-drop .text { font-size: 13px; color: var(--ink-soft); }
+  .ai-image-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+  .ai-image-list .pic {
+    aspect-ratio: 1; position: relative; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .ai-image-list .pic img { width: 100%; height: 100%; object-fit: cover; }
+  .ai-image-list .pic .del {
+    position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+    background: rgba(42,37,34,0.7); color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px;
+  }
+
+  .ai-action-bar { display: flex; gap: 10px; margin-top: 18px; align-items: center; }
+  .ai-action-bar .hint { color: var(--ink-light); font-size: 12px; }
+
+  .ai-loading {
+    text-align: center; padding: 60px 20px; color: var(--ink-soft);
+  }
+  .ai-loading .spinner {
+    display: inline-block; width: 32px; height: 32px;
+    border: 3px solid var(--line); border-top-color: var(--rouge);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-bottom: 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ai-result-card {
+    background: white; border: 1px solid var(--line-soft);
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .ai-result-head {
+    padding: 14px 20px; background: var(--paper);
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ai-result-head .name {
+    font-size: 16px; font-weight: 500; letter-spacing: 2px;
+  }
+  .ai-result-head .role {
+    padding: 3px 10px; background: var(--rouge); color: white;
+    font-size: 11px; letter-spacing: 1px;
+  }
+  .ai-result-body { padding: 16px 20px; }
+  .ai-field-row {
+    display: grid; grid-template-columns: 100px 1fr 80px; gap: 12px;
+    padding: 8px 0; border-bottom: 1px dashed var(--line-soft);
+    align-items: center;
+  }
+  .ai-field-row:last-child { border-bottom: none; }
+  .ai-field-row .k { color: var(--ink-light); font-size: 12px; letter-spacing: 1px; }
+  .ai-field-row input, .ai-field-row textarea {
+    padding: 6px 10px; border: 1px solid var(--line);
+    font-family: inherit; font-size: 13px; background: var(--bg);
+    width: 100%;
+  }
+  .ai-field-row input:focus, .ai-field-row textarea:focus { outline: none; border-color: var(--rouge); background: white; }
+  .ai-field-row.low-conf input, .ai-field-row.low-conf textarea {
+    border-color: var(--orange); background: rgba(201,122,60,0.05);
+  }
+  .confidence-tag {
+    font-size: 10px; padding: 2px 6px; letter-spacing: 1px;
+    text-align: center; border-radius: 2px;
+  }
+  .confidence-tag.high { background: rgba(90,125,79,0.15); color: var(--green); }
+  .confidence-tag.medium { background: rgba(184,147,90,0.15); color: var(--gold); }
+  .confidence-tag.low { background: rgba(201,122,60,0.15); color: var(--orange); }
+
+  .ai-section-title {
+    font-size: 11px; letter-spacing: 3px; color: var(--rouge);
+    padding: 12px 20px 6px; background: rgba(160,44,44,0.04);
+    border-top: 1px solid var(--line-soft);
+  }
+  .ai-merge-badge {
+    display: inline-block; padding: 2px 8px; background: var(--gold);
+    color: white; font-size: 10px; letter-spacing: 1px;
+    margin-left: 8px;
+  }
+  .ai-tip {
+    padding: 10px 14px; background: rgba(184,147,90,0.08);
+    border-left: 3px solid var(--gold); font-size: 12px;
+    color: var(--ink-soft); margin-bottom: 14px;
+  }
+  .ai-history-item {
+    padding: 10px 14px; background: var(--paper); margin-bottom: 8px;
+    font-size: 12px; color: var(--ink-soft);
+    border-left: 3px solid var(--ink-light);
+  }
+  .ai-history-item .h-date { font-family: 'Cormorant Garamond', serif; color: var(--ink); }
+  .ai-history-item .h-text {
+    margin-top: 6px; padding: 8px 10px; background: white;
+    max-height: 80px; overflow: hidden; line-height: 1.7;
+    border-radius: 2px; font-size: 11px;
+  }
+
+  /* 顶部数据看板 */
+  .dashboard {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--line-soft);
+    padding: 18px 20px; position: relative; overflow: hidden;
+  }
+  .stat-card::after {
+    content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 60px;
+    background: var(--paper-warm); border-radius: 50%;
+    transform: translate(20px,-20px); opacity: 0.6;
+  }
+  .stat-label { font-size: 12px; color: var(--ink-light); letter-spacing: 2px; margin-bottom: 8px; }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400;
+    color: var(--ink); line-height: 1; position: relative; z-index: 1;
+  }
+  .stat-value .unit { font-size: 14px; color: var(--ink-light); margin-left: 4px; }
+
+  /* 筛选区 */
+  .filters {
+    background: var(--white); padding: 18px 20px; margin-bottom: 18px;
+    border: 1px solid var(--line-soft); display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .filter-item { display: flex; align-items: center; gap: 6px; }
+  .filter-item label { font-size: 12px; color: var(--ink-soft); letter-spacing: 1px; }
+  .filter-item select, .filter-item input {
+    padding: 6px 10px; border: 1px solid var(--line); background: var(--bg);
+    font-family: inherit; font-size: 13px; color: var(--ink); min-width: 100px;
+  }
+  .filter-item input { min-width: 160px; }
+  .filter-item select:focus, .filter-item input:focus { outline: none; border-color: var(--rouge); }
+
+  /* 表格 */
+  .table-wrap { background: var(--white); border: 1px solid var(--line-soft); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+  th {
+    text-align: left; padding: 14px 14px; background: var(--paper);
+    font-weight: 500; letter-spacing: 1px; color: var(--ink-soft);
+    border-bottom: 1px solid var(--line); font-size: 12px;
+    cursor: pointer; user-select: none;
+  }
+  th:hover { color: var(--rouge); }
+  td { padding: 14px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+  tr:hover td { background: #fdfaf3; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+    background: var(--paper-warm); display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-soft); font-size: 13px;
+  }
+  .name-cell { display: flex; align-items: center; gap: 12px; }
+  .name-info { display: flex; flex-direction: column; }
+  .name-info .name { font-weight: 500; color: var(--ink); }
+  .name-info .phone { font-size: 11px; color: var(--ink-light); font-family: 'Cormorant Garamond', serif; }
+
+  /* 评级徽章 */
+  .rating {
+    display: inline-block; width: 26px; height: 26px; line-height: 24px;
+    text-align: center; border-radius: 50%; font-weight: 600; font-size: 12px;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .rating-S { background: var(--rouge); color: white; }
+  .rating-A { background: var(--gold); color: white; }
+  .rating-B { background: var(--ink-light); color: white; }
+  .rating-C { background: var(--line); color: var(--ink-soft); }
+  .rating-none { background: transparent; border: 1px dashed var(--line); color: var(--ink-light); }
+
+  .status-tag {
+    display: inline-block; padding: 3px 10px; font-size: 11px;
+    border: 1px solid; letter-spacing: 1px;
+  }
+  .status-default { color: var(--ink-soft); border-color: var(--line); }
+  .status-good { color: var(--green); border-color: var(--green); background: rgba(90,125,79,0.05); }
+  .status-warn { color: var(--orange); border-color: var(--orange); background: rgba(201,122,60,0.05); }
+  .status-bad { color: var(--rouge); border-color: var(--rouge); background: rgba(160,44,44,0.05); }
+  .status-block { background: var(--ink); color: white; border-color: var(--ink); }
+
+  .role-badge {
+    display: inline-block; padding: 2px 8px; font-size: 11px;
+    background: var(--paper); color: var(--ink-soft); letter-spacing: 1px;
+  }
+
+  /* 抽屉 */
+  .drawer-mask {
+    position: fixed; inset: 0; background: rgba(42,37,34,0.4); z-index: 99;
+    display: none; opacity: 0; transition: opacity 0.3s;
+  }
+  .drawer-mask.show { display: block; opacity: 1; }
+  .drawer {
+    position: fixed; top: 0; right: -780px; width: 780px; max-width: 95vw;
+    height: 100vh; background: var(--bg); z-index: 100;
+    transition: right 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    overflow-y: auto; box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+  }
+  .drawer.show { right: 0; }
+  .drawer-head {
+    padding: 22px 30px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--white); position: sticky; top: 0; z-index: 2;
+  }
+  .drawer-head h2 { font-size: 18px; letter-spacing: 4px; }
+  .drawer-close { cursor: pointer; font-size: 22px; color: var(--ink-light); }
+  .drawer-close:hover { color: var(--rouge); }
+  .drawer-body { padding: 24px 30px 60px; }
+
+  .panel {
+    background: var(--white); border: 1px solid var(--line-soft);
+    padding: 20px 24px; margin-bottom: 16px;
+  }
+  .panel h3 {
+    font-size: 14px; letter-spacing: 4px; margin-bottom: 14px;
+    color: var(--rouge); padding-bottom: 10px; border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel h3 small { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; font-weight: 400; }
+
+  /* 信息行 */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .info-row { display: flex; padding: 6px 0; font-size: 13px; }
+  .info-row .k { width: 90px; color: var(--ink-light); flex-shrink: 0; }
+  .info-row .v { color: var(--ink); flex: 1; word-break: break-all; }
+
+  .styles-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .style-tag {
+    display: inline-block; padding: 2px 9px; background: var(--paper-warm);
+    color: var(--ink-soft); font-size: 11px; letter-spacing: 1px;
+  }
+
+  /* 作品集 */
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .gallery img {
+    width: 100%; aspect-ratio: 1; object-fit: cover; cursor: pointer;
+    border: 1px solid var(--line-soft); transition: transform 0.2s;
+  }
+  .gallery img:hover { transform: scale(1.03); }
+
+  /* 评分表单 */
+  .form-row { display: flex; align-items: center; margin-bottom: 14px; gap: 14px; }
+  .form-row label { width: 100px; font-size: 13px; color: var(--ink-soft); flex-shrink: 0; }
+  .form-row select, .form-row input, .form-row textarea {
+    flex: 1; padding: 7px 10px; border: 1px solid var(--line);
+    font-family: inherit; font-size: 13px; background: var(--bg);
+  }
+  .form-row textarea { min-height: 60px; resize: vertical; }
+  .form-row select:focus, .form-row input:focus, .form-row textarea:focus { outline: none; border-color: var(--rouge); }
+  .form-row .stars {
+    display: flex; gap: 4px;
+  }
+  .star {
+    width: 24px; height: 24px; cursor: pointer; color: var(--line);
+    font-size: 20px; line-height: 24px; user-select: none;
+  }
+  .star.on { color: var(--gold); }
+
+  /* 客诉记录列表 */
+  .complaint-list { display: flex; flex-direction: column; gap: 10px; }
+  .complaint-item {
+    padding: 12px 14px; background: var(--paper); border-left: 3px solid var(--orange);
+    font-size: 13px;
+  }
+  .complaint-item .ch { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; color: var(--ink-light); }
+  .complaint-item .cb { color: var(--ink); }
+  .empty {
+    text-align: center; color: var(--ink-light); padding: 20px;
+    font-size: 13px; letter-spacing: 1px;
+  }
+
+  /* 标签 chip */
+  .flag-chip {
+    display: inline-block; padding: 4px 10px; font-size: 12px;
+    border: 1px solid var(--line); background: var(--white);
+    color: var(--ink-soft); cursor: pointer; user-select: none;
+    transition: all 0.2s; border-radius: 14px;
+  }
+  .flag-chip:hover { border-color: var(--rouge); color: var(--rouge); }
+  .flag-chip.on { background: var(--rouge); color: white; border-color: var(--rouge); }
+
+  /* 记录列表项 */
+  .record-item {
+    padding: 12px 14px; background: var(--paper); margin-bottom: 8px;
+    font-size: 13px; display: flex; align-items: flex-start; gap: 12px;
+  }
+  .record-item .r-date {
+    width: 80px; font-family: 'Cormorant Garamond', serif; color: var(--ink-light); flex-shrink: 0;
+  }
+  .record-item .r-body { flex: 1; }
+  .record-item .r-body .r-title { font-weight: 500; margin-bottom: 4px; }
+  .record-item .r-body .r-detail { color: var(--ink-soft); font-size: 12px; line-height: 1.7; }
+  .record-item .r-actions { display: flex; gap: 8px; }
+  .record-item .r-del { cursor: pointer; color: var(--rouge); font-size: 11px; }
+  .record-item.unreplied { border-left: 3px solid var(--orange); background: rgba(201,122,60,0.04); }
+  .record-item.unsettled { border-left: 3px solid var(--rouge); background: rgba(160,44,44,0.04); }
+  .record-item.settled { border-left: 3px solid var(--green); }
+
+  /* 视频卡片 */
+  .video-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .video-card {
+    position: relative; aspect-ratio: 1; cursor: pointer;
+    background: black; overflow: hidden; border: 1px solid var(--line-soft);
+  }
+  .video-card video { width: 100%; height: 100%; object-fit: cover; }
+  .video-card::after {
+    content: '▶'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 32px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .video-card .v-name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 6px 10px; background: rgba(0,0,0,0.5); color: white;
+    font-size: 11px; pointer-events: none;
+  }
+
+  /* 时间线 */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--line);
+  }
+  .timeline-item { position: relative; padding-bottom: 16px; }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -22px; top: 6px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--rouge); border: 2px solid var(--bg);
+  }
+  .timeline-item.is-contact::before { background: var(--gold); }
+  .timeline-item.is-payment::before { background: var(--green); }
+  .timeline-item.is-complaint::before { background: var(--orange); }
+  .timeline-item.is-praise::before { background: var(--green); }
+  .timeline-item .ti-head {
+    font-size: 12px; color: var(--ink-light); margin-bottom: 4px;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .timeline-item .ti-body { font-size: 13px; color: var(--ink); }
+  .timeline-item .ti-tag {
+    display: inline-block; padding: 1px 6px; font-size: 10px;
+    margin-right: 6px; letter-spacing: 1px;
+    background: var(--paper-warm); color: var(--ink-soft);
+  }
+
+  /* 档期 */
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day {
+    padding: 8px 4px; text-align: center; cursor: pointer;
+    background: var(--paper); font-size: 12px; min-height: 50px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .cal-day:hover { background: var(--paper-warm); }
+  .cal-day.busy { background: var(--rouge); color: white; }
+  .cal-day.free { background: rgba(90,125,79,0.15); color: var(--green); }
+  .cal-day .d-num { font-family: 'Cormorant Garamond', serif; font-size: 14px; }
+  .cal-day .d-tag { font-size: 9px; margin-top: 2px; letter-spacing: 1px; }
+  .cal-head {
+    text-align: center; font-size: 11px; color: var(--ink-light);
+    padding: 4px; letter-spacing: 1px;
+  }
+  .cal-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .cal-controls .month { font-size: 16px; letter-spacing: 3px; }
+  .cal-legend { display: flex; gap: 16px; font-size: 11px; color: var(--ink-light); margin-top: 12px; }
+  .cal-legend .dot { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: middle; }
+
+  /* 提示词框 */
+  .empty-page { text-align: center; padding: 80px 20px; color: var(--ink-light); }
+  .empty-page h3 { font-size: 18px; letter-spacing: 4px; margin-bottom: 10px; color: var(--ink-soft); }
+
+  /* 图片预览 */
+  .preview-mask {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200;
+    display: none; align-items: center; justify-content: center; padding: 40px;
+  }
+  .preview-mask.show { display: flex; }
+  .preview-mask img { max-width: 100%; max-height: 100%; }
+
+  /* 弹窗 */
+  .modal-mask {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-mask.show { display: flex; }
+  .modal {
+    background: white; padding: 24px 28px; min-width: 420px; max-width: 90vw;
+    border: 1px solid var(--line);
+  }
+  .modal h3 { font-size: 16px; letter-spacing: 3px; margin-bottom: 18px; color: var(--rouge); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+  /* 升级评级时的自动算法提示 */
+  .auto-score {
+    background: var(--paper-warm); padding: 10px 14px; border-left: 3px solid var(--gold);
+    font-size: 12px; color: var(--ink-soft); margin-bottom: 14px;
+  }
+  .auto-score b { color: var(--rouge); font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+
+  /* 试用凭证上传 */
+  .trial-upload { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .trial-cell {
+    aspect-ratio: 1; background: var(--paper); border: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .trial-cell img { width: 100%; height: 100%; object-fit: cover; }
+  .trial-cell .del-trial {
+    position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+    background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px;
+  }
+
+  /* QR 入口卡片 */
+  .qr-card {
+    background: var(--white); padding: 30px; text-align: center; max-width: 400px; margin: 40px auto;
+    border: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-cn">云锦长安</div>
+    <div class="logo-en">Talent Management</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">总览</div>
+    <div class="nav-item active" data-view="dashboard">运营看板</div>
+    <div class="nav-item" data-view="followup">待跟进 <span class="count" id="count-followup">0</span></div>
+    <div class="nav-item nav-item-ai" data-view="ai-import">
+      <span style="display:inline-block;width:20px;height:20px;background:linear-gradient(135deg,#b8935a,#a02c2c);color:white;border-radius:4px;text-align:center;font-size:11px;line-height:20px;letter-spacing:0;font-weight:600;">AI</span>
+      智能录入
+    </div>
+    <div class="nav-section">人才库</div>
+    <div class="nav-item" data-view="all">全部人才 <span class="count" id="count-all">0</span></div>
+    <div class="nav-item" data-view="makeup">妆 造 师 <span class="count" id="count-makeup">0</span></div>
+    <div class="nav-item" data-view="dress">礼 服 师 <span class="count" id="count-dress">0</span></div>
+    <div class="nav-item" data-view="photo">摄 影 师 <span class="count" id="count-photo">0</span></div>
+    <div class="nav-item" data-view="retouch">修 图 师 <span class="count" id="count-retouch">0</span></div>
+    <div class="nav-item" data-view="model">模　　特 <span class="count" id="count-model">0</span></div>
+    <div class="nav-item" data-view="anchor">主　　播 <span class="count" id="count-anchor">0</span></div>
+    <div class="nav-item" data-view="service">客　　服 <span class="count" id="count-service">0</span></div>
+    <div class="nav-section">分析</div>
+    <div class="nav-item" data-view="referrers">推荐人统计</div>
+    <div class="nav-section">风险管控</div>
+    <div class="nav-item" data-view="blacklist">黑名单 <span class="count" id="count-block">0</span></div>
+    <div class="nav-section">其他</div>
+    <div class="nav-item" data-view="qr">招募二维码</div>
+    <div class="nav-item" data-view="settings">系统设置</div>
+  </nav>
+</aside>
+
+<main class="main" id="main">
+  <!-- 内容由 JS 渲染 -->
+</main>
+
+<!-- 详情抽屉 -->
+<div class="drawer-mask" id="drawer-mask"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 id="drawer-title">人才档案</h2>
+    <span class="drawer-close" id="drawer-close">×</span>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<!-- 图片预览 -->
+<div class="preview-mask" id="preview-mask"><img id="preview-img"></div>
+
+<!-- 弹窗 -->
+<div class="modal-mask" id="modal-mask">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+/* ============== 数据库 ============== */
+const DB_NAME = 'yunjin_talents';
+const STORE = 'talents';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE)) {
+        const store = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        store.createIndex('phone', 'phone', { unique: false });
+        store.createIndex('role_type', 'role_type', { unique: false });
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e);
+  });
+}
+
+async function getAllTalents() {
+  const db = await openDB();
+  return new Promise(resolve => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]);
+  });
+}
+
+async function updateTalent(data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).put(data);
+    req.onsuccess = () => resolve();
+    req.onerror = e => reject(e);
+  });
+}
+
+async function deleteTalent(id) {
+  const db = await openDB();
+  return new Promise(resolve => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = () => resolve();
+  });
+}
+
+/* ============== 角色映射 ============== */
+const ROLE_NAME = {
+  makeup: '妆造师', dress: '礼服师', photo: '摄影师', retouch: '修图师',
+  model: '模特', anchor: '主播', service: '客服'
+};
+
+/* ============== 工具：自动评级算法 ============== */
+function calcAutoRating(t) {
+  // 基础技术分（管理员主观打分） + 上岗经验 - 客诉 - 放鸽子
+  const baseScore = t.trial_score || t.composition_score || 5;
+  let score = baseScore * 5;        // 基础分占 50%
+  const workBonus = Math.min(t.work_count || 0, 20) * 1.25;  // 上岗经验最多加 25 分
+  const complaintPenalty = (t.complaint_count || 0) * 5;
+  const noShowPenalty = (t.no_show_count || 0) * 8;
+  score = score + workBonus - complaintPenalty - noShowPenalty;
+  score = Math.max(0, Math.min(100, score));
+  let rating = 'C';
+  if (score >= 85) rating = 'S';
+  else if (score >= 70) rating = 'A';
+  else if (score >= 50) rating = 'B';
+  return { score: Math.round(score), rating };
+}
+
+/* ============== 主渲染 ============== */
+let currentView = 'dashboard';
+let currentFilters = { keyword: '', rating: '', status: '', style: '', availableDate: '' };
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    currentView = item.dataset.view;
+    render();
+  });
+});
+
+async function render() {
+  await updateCounts();
+  if (currentView === 'qr') return renderQR();
+  if (currentView === 'settings') return renderSettings();
+  if (currentView === 'dashboard') return renderDashboard();
+  if (currentView === 'followup') return renderFollowup();
+  if (currentView === 'referrers') return renderReferrers();
+  if (currentView === 'ai-import') return renderAIImport();
+  renderList();
+}
+
+async function updateCounts() {
+  const all = await getAllTalents();
+  document.getElementById('count-all').textContent = all.length;
+  document.getElementById('count-makeup').textContent = all.filter(t => t.role_type === 'makeup').length;
+  document.getElementById('count-dress').textContent = all.filter(t => t.role_type === 'dress').length;
+  document.getElementById('count-model').textContent = all.filter(t => t.role_type === 'model').length;
+  document.getElementById('count-anchor').textContent = all.filter(t => t.role_type === 'anchor').length;
+  document.getElementById('count-photo').textContent = all.filter(t => t.role_type === 'photo').length;
+  document.getElementById('count-retouch').textContent = all.filter(t => t.role_type === 'retouch').length;
+  document.getElementById('count-service').textContent = all.filter(t => t.role_type === 'service').length;
+  document.getElementById('count-block').textContent = all.filter(t => t.blacklist_mark && t.blacklist_mark !== '正常').length;
+  // 待跟进 = 有标记"待跟进" + 联系未回复超 3 天 + 互免承诺未交付 + 欠款未结
+  const followupCount = all.filter(t => isNeedFollowup(t)).length;
+  const followupEl = document.getElementById('count-followup');
+  if (followupEl) followupEl.textContent = followupCount;
+}
+
+function isNeedFollowup(t) {
+  // 1) 手动标记的待跟进
+  if ((t.flags || []).includes('⏰ 待跟进')) return true;
+  // 2) 联系未回复超 3 天
+  const cr = t.contact_records || [];
+  if (cr.length) {
+    const last = cr[cr.length - 1];
+    if (!last.replied && last.date) {
+      const diff = (Date.now() - new Date(last.date).getTime()) / (1000*60*60*24);
+      if (diff > 3) return true;
+    }
+  }
+  // 3) 互免承诺未交付
+  if (t.role_type === 'model' && t.mutual_promise && /未交付|未给|欠/.test(t.mutual_promise)) return true;
+  // 4) 欠款未结
+  const pr = t.payment_records || [];
+  if (pr.some(p => !p.settled && Number(p.amount) > 0)) return true;
+  return false;
+}
+
+async function renderList() {
+  const all = await getAllTalents();
+  let list = [...all];
+
+  if (currentView === 'blacklist') {
+    list = list.filter(t => t.blacklist_mark && t.blacklist_mark !== '正常');
+  } else if (currentView !== 'all') {
+    list = list.filter(t => t.role_type === currentView);
+  }
+
+  // 应用筛选
+  if (currentFilters.keyword) {
+    const k = currentFilters.keyword.toLowerCase();
+    list = list.filter(t =>
+      (t.name || '').toLowerCase().includes(k) ||
+      (t.phone || '').includes(k) ||
+      (t.wechat || '').toLowerCase().includes(k)
+    );
+  }
+  if (currentFilters.rating) {
+    list = list.filter(t => (t.tech_rating || t.quality_rating || t.service_rating) === currentFilters.rating);
+  }
+  if (currentFilters.status) {
+    list = list.filter(t => t.status === currentFilters.status);
+  }
+  if (currentFilters.style) {
+    list = list.filter(t => {
+      const arr = [].concat(t.makeup_styles||[], t.photo_styles||[], t.retouch_styles||[], t.dress_skills||[]);
+      return arr.includes(currentFilters.style);
+    });
+  }
+  if (currentFilters.availableDate) {
+    list = list.filter(t => {
+      const busy = t.calendar_busy || [];
+      return !busy.includes(currentFilters.availableDate);
+    });
+  }
+
+  // 评级排序
+  const ratingOrder = { 'S': 0, 'A': 1, 'B': 2, 'C': 3, '': 4 };
+  list.sort((a,b) => {
+    const ra = ratingOrder[a.tech_rating || a.quality_rating || a.service_rating || ''];
+    const rb = ratingOrder[b.tech_rating || b.quality_rating || b.service_rating || ''];
+    return ra - rb;
+  });
+
+  // 顶部 stats
+  const stats = {
+    total: all.length,
+    sLevel: all.filter(t => ['S'].includes(t.tech_rating || t.quality_rating || t.service_rating)).length,
+    pending: all.filter(t => t.status === '待复试').length,
+    blacklist: all.filter(t => t.blacklist_mark === '永久拉黑').length,
+    weekend: countWeekendAvailable(all)
+  };
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-head">
+      <div class="page-title">
+        ${currentView === 'all' ? '全部人才' :
+          currentView === 'blacklist' ? '黑名单管理' :
+          ROLE_NAME[currentView]}
+        <small>${list.length} 位</small>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="exportExcel()">导出 Excel</button>
+        <button class="btn btn-dark" onclick="window.open('人才录入.html', '_blank')">查看应聘端</button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="stat-card">
+        <div class="stat-label">人 才 总 数</div>
+        <div class="stat-value">${stats.total}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">S 级 顶 配</div>
+        <div class="stat-value" style="color:var(--rouge);">${stats.sLevel}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">待 复 试</div>
+        <div class="stat-value" style="color:var(--orange);">${stats.pending}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本 周 末 可 约</div>
+        <div class="stat-value" style="color:var(--green);">${stats.weekend}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">黑 名 单</div>
+        <div class="stat-value" style="color:var(--ink);">${stats.blacklist}<span class="unit">位</span></div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-item">
+        <label>搜索</label>
+        <input type="text" placeholder="姓名 / 手机 / 微信" id="f-keyword" value="${currentFilters.keyword}">
+      </div>
+      <div class="filter-item">
+        <label>评级</label>
+        <select id="f-rating">
+          <option value="">全部</option>
+          <option value="S" ${currentFilters.rating==='S'?'selected':''}>S</option>
+          <option value="A" ${currentFilters.rating==='A'?'selected':''}>A</option>
+          <option value="B" ${currentFilters.rating==='B'?'selected':''}>B</option>
+          <option value="C" ${currentFilters.rating==='C'?'selected':''}>C</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>状态</label>
+        <select id="f-status">
+          <option value="">全部</option>
+          <option value="待复试">待复试</option>
+          <option value="已录用">已录用</option>
+          <option value="兼职合作">兼职合作</option>
+          <option value="长期签约">长期签约</option>
+          <option value="偶尔合作">偶尔合作</option>
+          <option value="已离职">已离职</option>
+          <option value="拉黑">拉黑</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>擅长</label>
+        <select id="f-style">
+          <option value="">全部</option>
+          <optgroup label="妆造">
+            <option>唐风</option><option>宋制</option><option>明制</option>
+            <option>清冷风</option><option>少女感</option><option>古风新娘</option>
+          </optgroup>
+          <optgroup label="摄影">
+            <option>古风氛围感</option><option>情侣</option><option>外景</option>
+          </optgroup>
+          <optgroup label="礼服">
+            <option>汉服形制</option><option>礼服搭配</option><option>尺码适配</option>
+            <option>穿搭整理</option><option>简单盘发</option><option>简单化妆</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>当日可约</label>
+        <input type="date" id="f-date" value="${currentFilters.availableDate}">
+      </div>
+      <button class="btn" onclick="applyFilters()">筛选</button>
+      <button class="btn" onclick="clearFilters()">清除</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>姓名 / 联系方式</th>
+            <th>岗位</th>
+            <th>评级</th>
+            <th>擅长 / 标签</th>
+            <th>状态</th>
+            <th>上岗</th>
+            <th>客诉</th>
+            <th>登记时间</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.length === 0 ? `
+            <tr><td colspan="9" class="empty">暂无数据</td></tr>
+          ` : list.map(t => renderRow(t)).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('f-rating').addEventListener('change', applyFilters);
+  document.getElementById('f-status').addEventListener('change', applyFilters);
+  document.getElementById('f-style').addEventListener('change', applyFilters);
+  document.getElementById('f-date').addEventListener('change', applyFilters);
+  document.getElementById('f-keyword').addEventListener('input', e => {
+    currentFilters.keyword = e.target.value;
+    clearTimeout(window.__kwTimer);
+    window.__kwTimer = setTimeout(() => renderList(), 200);
+  });
+}
+
+function countWeekendAvailable(all) {
+  const now = new Date();
+  const dow = now.getDay();
+  const sat = new Date(now); sat.setDate(now.getDate() + ((6 - dow + 7) % 7));
+  const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+  const fmt = d => d.toISOString().slice(0,10);
+  return all.filter(t => {
+    const busy = t.calendar_busy || [];
+    return !busy.includes(fmt(sat)) && !busy.includes(fmt(sun));
+  }).length;
+}
+
+function applyFilters() {
+  currentFilters.keyword = document.getElementById('f-keyword').value;
+  currentFilters.rating = document.getElementById('f-rating').value;
+  currentFilters.status = document.getElementById('f-status').value;
+  currentFilters.style = document.getElementById('f-style').value;
+  currentFilters.availableDate = document.getElementById('f-date').value;
+  renderList();
+}
+
+function clearFilters() {
+  currentFilters = { keyword: '', rating: '', status: '', style: '', availableDate: '' };
+  renderList();
+}
+
+function renderRow(t) {
+  const rating = t.tech_rating || t.quality_rating || t.service_rating || '';
+  const ratingClass = rating ? `rating-${rating}` : 'rating-none';
+  const styles = [].concat(t.makeup_styles||[], t.photo_styles||[], t.retouch_styles||[], t.platforms||[], t.dress_skills||[], t.shoot_types||[], t.anchor_categories||[], t.image_style||[]).slice(0,3);
+  const statusClass =
+    t.blacklist_mark === '永久拉黑' ? 'status-block' :
+    t.status === '已录用' || t.status === '长期签约' ? 'status-good' :
+    t.status === '待复试' ? 'status-warn' :
+    t.status === '拉黑' || t.status === '已离职' ? 'status-bad' : 'status-default';
+
+  return `
+    <tr onclick="openDrawer(${t.id})" style="cursor:pointer;">
+      <td>
+        <div class="name-cell">
+          ${t.selfie_url ?
+            `<img class="avatar" src="${t.selfie_url}">` :
+            `<span class="avatar">${(t.name || '?').slice(0,1)}</span>`}
+          <div class="name-info">
+            <span class="name">${t.name || '-'}</span>
+            <span class="phone">${t.phone || ''}</span>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-badge">${ROLE_NAME[t.role_type] || '-'}</span></td>
+      <td><span class="rating ${ratingClass}">${rating || '-'}</span></td>
+      <td><div class="styles-tags">${styles.map(s => `<span class="style-tag">${s}</span>`).join('') || '-'}</div></td>
+      <td><span class="status-tag ${statusClass}">${t.status || '-'}</span></td>
+      <td style="font-family:'Cormorant Garamond',serif;">${t.work_count || 0}</td>
+      <td style="font-family:'Cormorant Garamond',serif;color:${(t.complaint_count||0)>0?'var(--rouge)':'var(--ink-light)'};">${t.complaint_count || 0}</td>
+      <td style="color:var(--ink-light);font-size:12px;">${formatDate(t.created_at)}</td>
+      <td><span style="color:var(--ink-light);">›</span></td>
+    </tr>
+  `;
+}
+
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+/* ============== 抽屉详情 ============== */
+let currentTalent = null;
+
+async function openDrawer(id) {
+  const all = await getAllTalents();
+  currentTalent = all.find(t => t.id === id);
+  if (!currentTalent) return;
+  document.getElementById('drawer-title').textContent = `${currentTalent.name} · ${ROLE_NAME[currentTalent.role_type]}`;
+  renderDrawerBody();
+  document.getElementById('drawer-mask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-mask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  currentTalent = null;
+}
+document.getElementById('drawer-mask').addEventListener('click', closeDrawer);
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+
+function renderDrawerBody() {
+  const t = currentTalent;
+  if (!t) return;
+  const role = t.role_type;
+  const autoR = calcAutoRating(t);
+  const flags = t.flags || [];
+
+  const body = document.getElementById('drawer-body');
+  body.innerHTML = `
+    <!-- 顶部快速操作区 -->
+    <div class="panel" style="padding:14px 20px;background:var(--paper);">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary" onclick="openDispatchModal()" style="padding:6px 12px;">⚡ 一键派单</button>
+        <button class="btn" onclick="openContactModal()" style="padding:6px 12px;">📞 记录联系</button>
+        <button class="btn" onclick="openPaymentModal()" style="padding:6px 12px;">💰 记录结算</button>
+        ${role === 'anchor' ? `<button class="btn" onclick="openLiveSessionModal()" style="padding:6px 12px;">📺 记录场次</button>` : ''}
+        <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+          ${['⭐ 收藏','⏰ 待跟进','🚫 谨慎','✨ 优先派单'].map(label => {
+            const active = flags.includes(label);
+            return `<span class="flag-chip ${active?'on':''}" onclick="toggleFlag('${label}')">${label}</span>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    ${t.blacklist_mark === '永久拉黑' ? `
+      <div class="panel" style="background:var(--ink);color:white;">
+        <h3 style="color:var(--rouge);border-color:rgba(255,255,255,0.1);">⚠ 已拉黑</h3>
+        <div>此人员已被永久拉黑，请勿合作。<br>原因：${t.blacklist_reason || '未填写'}</div>
+      </div>
+    ` : ''}
+
+    <!-- 基础信息 -->
+    <div class="panel">
+      <h3>基础信息 <small>由本人填写</small></h3>
+      <div style="display:flex;gap:20px;">
+        ${t.selfie_url ? `<img class="avatar" src="${t.selfie_url}" style="width:90px;height:90px;cursor:pointer;" onclick="previewImg('${t.selfie_url}')">` : ''}
+        <div class="info-grid" style="flex:1;">
+          <div class="info-row"><span class="k">姓名</span><span class="v">${t.name || '-'}</span></div>
+          <div class="info-row"><span class="k">手机</span><span class="v">${t.phone || '-'} <a href="#" onclick="copyText('${t.phone}',event)" style="color:var(--rouge);font-size:11px;margin-left:6px;">复制</a></span></div>
+          <div class="info-row"><span class="k">微信</span><span class="v">${t.wechat || '-'} <a href="#" onclick="copyText('${t.wechat}',event)" style="color:var(--rouge);font-size:11px;margin-left:6px;">复制</a></span></div>
+          <div class="info-row"><span class="k">居住</span><span class="v">${t.residence || '-'}</span></div>
+          <div class="info-row"><span class="k">推荐人</span><span class="v">${t.referrer || '-'}</span></div>
+          <div class="info-row"><span class="k">登记</span><span class="v">${new Date(t.created_at).toLocaleDateString()}${t.updated_at ? ` <span style="font-size:11px;color:var(--ink-light);">(更新 ${new Date(t.updated_at).toLocaleDateString()})</span>` : ''}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 专业信息 -->
+    <div class="panel">
+      <h3>专业信息 <small>由本人填写</small></h3>
+      ${renderProfessionalInfo(t)}
+    </div>
+
+    ${(t.ai_notes || (t.ai_history && t.ai_history.length)) ? `
+      <div class="panel" style="border-color:var(--gold);">
+        <h3 style="color:var(--gold);">
+          🤖 AI 备注与历史
+          <small>${(t.ai_history || []).length} 次 AI 解析记录</small>
+        </h3>
+        ${t.ai_notes ? `
+          <div style="padding:12px 14px;background:rgba(184,147,90,0.06);border-left:3px solid var(--gold);font-size:13px;line-height:1.9;color:var(--ink);white-space:pre-wrap;">${t.ai_notes}</div>
+        ` : ''}
+        ${t.manual_notes ? `
+          <div style="padding:12px 14px;background:rgba(160,44,44,0.04);border-left:3px solid var(--rouge);font-size:13px;line-height:1.9;color:var(--ink);margin-top:8px;">
+            <div style="font-size:11px;color:var(--rouge);letter-spacing:2px;margin-bottom:4px;">人 工 补 充 备 注</div>
+            <div style="white-space:pre-wrap;">${t.manual_notes}</div>
+          </div>
+        ` : ''}
+        <div style="margin-top:10px;">
+          <button class="btn" style="font-size:11px;padding:4px 10px;" onclick="editManualNote()">${t.manual_notes ? '✎ 编辑人工备注' : '+ 添加人工备注'}</button>
+          ${(t.ai_history || []).length ? `<button class="btn" style="font-size:11px;padding:4px 10px;" onclick="viewAIHistoryDetail()">查看 ${t.ai_history.length} 次解析历史</button>` : ''}
+        </div>
+      </div>
+    ` : ''}
+
+    ${renderPersonalitySection(t)}
+
+    ${(t.portfolio_urls && t.portfolio_urls.length) ? `
+      <div class="panel">
+        <h3>作品集 <small>${t.portfolio_urls.length} 张</small></h3>
+        <div class="gallery">
+          ${t.portfolio_urls.map(u => `<img src="${u}" onclick="previewImg('${u}')">`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 综合评价（管理员区） -->
+    <div class="panel" style="border-color:var(--rouge);">
+      <h3 style="color:var(--rouge);">★ 内部评价 <small>管理员专用</small></h3>
+
+      <div class="auto-score">
+        系统自动计算的综合分：<b>${autoR.score}</b> 分，建议评级：<b>${autoR.rating}</b><br>
+        <span style="font-size:11px;">（算法：技术分×50% + 上岗经验加分 − 客诉×5 − 放鸽子×8）</span>
+      </div>
+
+      ${renderAdminFields(t)}
+    </div>
+
+    <!-- 试用凭证 -->
+    <div class="panel">
+      <h3>试用凭证 <small>试妆 / 试拍 / 试修截图</small></h3>
+      <div class="trial-upload" id="trial-grid">
+        ${(t.trial_images || []).map((u,i) => `
+          <div class="trial-cell" style="border-style:solid;">
+            <img src="${u}" onclick="previewImg('${u}')">
+            <span class="del-trial" onclick="delTrialImg(${i})">×</span>
+          </div>
+        `).join('')}
+        <div class="trial-cell" onclick="document.getElementById('trial-input').click()">
+          <span style="color:var(--ink-light);font-size:24px;">+</span>
+        </div>
+      </div>
+      <input type="file" id="trial-input" accept="image/*" multiple style="display:none;" onchange="uploadTrialImages(event)">
+    </div>
+
+    <!-- 档期 -->
+    <div class="panel">
+      <h3>档期日历 <small>点击日期标记占用 / 空闲</small></h3>
+      ${renderCalendar(t)}
+    </div>
+
+    <!-- 模卡 (模特专属) -->
+    ${(t.modelcard_urls && t.modelcard_urls.length) ? `
+      <div class="panel">
+        <h3>模卡 / 模特卡 <small>${t.modelcard_urls.length} 张</small></h3>
+        <div class="gallery">
+          ${t.modelcard_urls.map(u => `<img src="${u}" onclick="previewImg('${u}')">`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 素颜 / 半身照 (模特) -->
+    ${(t.bareface_urls && t.bareface_urls.length) ? `
+      <div class="panel">
+        <h3>素颜 / 实拍 <small>${t.bareface_urls.length} 张</small></h3>
+        <div class="gallery">
+          ${t.bareface_urls.map(u => `<img src="${u}" onclick="previewImg('${u}')">`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 主播素颜 / 淡妆实拍 -->
+    ${(t.anchorface_urls && t.anchorface_urls.length) ? `
+      <div class="panel">
+        <h3>素颜 / 淡妆实拍 <small>${t.anchorface_urls.length} 张</small></h3>
+        <div class="gallery">
+          ${t.anchorface_urls.map(u => `<img src="${u}" onclick="previewImg('${u}')">`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 生活照 (模特) -->
+    ${(t.daily_urls && t.daily_urls.length) ? `
+      <div class="panel">
+        <h3>生活照 <small>${t.daily_urls.length} 张</small></h3>
+        <div class="gallery">
+          ${t.daily_urls.map(u => `<img src="${u}" onclick="previewImg('${u}')">`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 切片视频 (主播) -->
+    ${(t.video_urls && t.video_urls.length) ? `
+      <div class="panel">
+        <h3>直播切片 / 短视频 <small>${t.video_urls.length} 段</small></h3>
+        <div class="video-gallery">
+          ${t.video_urls.map((v, i) => `
+            <div class="video-card" onclick="previewVideo(${i})">
+              <video src="${v.url}" muted preload="metadata"></video>
+              ${v.name ? `<div class="v-name">${v.name}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- 派单记录 -->
+    <div class="panel">
+      <h3>派单记录
+        <small>共 ${(t.dispatch_records || []).length} 次 · 上岗 ${t.work_count || 0} 次</small>
+      </h3>
+      ${(t.dispatch_records || []).length === 0 ? '<div class="empty">暂无派单记录,点击顶部「⚡ 一键派单」开始</div>' : `
+        <div>
+          ${[...(t.dispatch_records || [])].reverse().map((d, i) => {
+            const realIdx = t.dispatch_records.length - 1 - i;
+            return `
+              <div class="record-item">
+                <span class="r-date">${d.date}</span>
+                <div class="r-body">
+                  <div class="r-title">${d.task || '未命名任务'} ${d.fee ? `<span style="color:var(--gold);">· ¥${d.fee}</span>` : ''}</div>
+                  ${d.note ? `<div class="r-detail">${d.note}</div>` : ''}
+                  ${d.customer ? `<div class="r-detail">客户:${d.customer}</div>` : ''}
+                </div>
+                <div class="r-actions">
+                  <span class="r-del" onclick="delDispatch(${realIdx})">删除</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+
+    <!-- 联系记录 -->
+    <div class="panel">
+      <h3>联系记录
+        <small>${(t.contact_records || []).length} 条 · 响应率 ${calcResponseRate(t)}%</small>
+      </h3>
+      ${(t.contact_records || []).length === 0 ? '<div class="empty">暂无记录,点击顶部「📞 记录联系」</div>' : `
+        <div>
+          ${[...(t.contact_records || [])].reverse().map((c, i) => {
+            const realIdx = t.contact_records.length - 1 - i;
+            const days = c.replied ? null : Math.floor((Date.now() - new Date(c.date).getTime())/86400000);
+            return `
+              <div class="record-item ${!c.replied ? 'unreplied' : ''}">
+                <span class="r-date">${c.date}</span>
+                <div class="r-body">
+                  <div class="r-title">${c.channel || '微信'} · ${c.purpose || '联系'}
+                    ${c.replied ? '<span style="color:var(--green);font-size:11px;margin-left:6px;">已回复</span>'
+                      : `<span style="color:var(--orange);font-size:11px;margin-left:6px;">未回复${days > 0 ? ' · '+days+' 天' : ''}</span>`}
+                  </div>
+                  ${c.note ? `<div class="r-detail">${c.note}</div>` : ''}
+                </div>
+                <div class="r-actions">
+                  ${!c.replied ? `<span class="r-del" style="color:var(--green);" onclick="markReplied(${realIdx})">标记已回复</span>` : ''}
+                  <span class="r-del" onclick="delContact(${realIdx})">删除</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+
+    <!-- 结算记录 -->
+    <div class="panel">
+      <h3>结算记录
+        <small>${renderPaymentSummary(t)}</small>
+      </h3>
+      ${(t.payment_records || []).length === 0 ? '<div class="empty">暂无记录,点击顶部「💰 记录结算」</div>' : `
+        <div>
+          ${[...(t.payment_records || [])].reverse().map((p, i) => {
+            const realIdx = t.payment_records.length - 1 - i;
+            return `
+              <div class="record-item ${p.settled ? 'settled' : 'unsettled'}">
+                <span class="r-date">${p.date}</span>
+                <div class="r-body">
+                  <div class="r-title">${p.project || '未命名'} <span style="color:var(--gold);font-family:Cormorant Garamond,serif;font-size:16px;">¥${p.amount || 0}</span>
+                    <span style="font-size:11px;margin-left:6px;color:${p.settled ? 'var(--green)' : 'var(--rouge)'};">${p.settled ? '✓ 已结' : '● 未结'}</span>
+                  </div>
+                  ${p.note ? `<div class="r-detail">${p.note}</div>` : ''}
+                </div>
+                <div class="r-actions">
+                  ${!p.settled ? `<span class="r-del" style="color:var(--green);" onclick="markPaid(${realIdx})">标记已付</span>` : ''}
+                  <span class="r-del" onclick="delPayment(${realIdx})">删除</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+
+    <!-- 直播场次记录（仅主播）-->
+    ${role === 'anchor' ? `
+      <div class="panel">
+        <h3>直播场次复盘
+          <small>${(t.live_sessions || []).length} 场 · 累计 ¥${(t.live_sessions || []).reduce((s,l) => s+Number(l.sales||0), 0)}</small>
+        </h3>
+        ${(t.live_sessions || []).length === 0 ? '<div class="empty">暂无记录,点击顶部「📺 记录场次」</div>' : `
+          <table style="width:100%;font-size:12px;">
+            <thead><tr style="background:var(--paper);"><th style="padding:8px;text-align:left;">日期</th><th>时长</th><th>观看</th><th>销售额</th><th>备注</th><th></th></tr></thead>
+            <tbody>
+              ${[...(t.live_sessions || [])].reverse().map((l, i) => {
+                const realIdx = t.live_sessions.length - 1 - i;
+                return `
+                  <tr style="border-bottom:1px solid var(--line-soft);">
+                    <td style="padding:8px;font-family:Cormorant Garamond,serif;">${l.date}</td>
+                    <td>${l.duration || '-'}</td>
+                    <td>${l.views || '-'}</td>
+                    <td style="color:var(--gold);font-weight:500;">¥${l.sales || 0}</td>
+                    <td style="color:var(--ink-soft);">${l.note || '-'}</td>
+                    <td><span class="r-del" onclick="delLiveSession(${realIdx})">删</span></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    ` : ''}
+
+    <!-- 客诉记录 -->
+    <div class="panel">
+      <h3>客诉与好评记录
+        <button class="btn" style="font-size:11px;padding:4px 10px;" onclick="openComplaintModal()">+ 新增记录</button>
+      </h3>
+      <div class="complaint-list">
+        ${(t.complaints || []).length === 0 ? '<div class="empty">暂无记录</div>' :
+          [...(t.complaints || [])].reverse().map((c, i) => `
+            <div class="complaint-item" style="border-left-color:${c.type==='好评'?'var(--green)':'var(--orange)'};">
+              <div class="ch">
+                <span>${c.date} · ${c.type} · ${c.customer || '匿名'}</span>
+                <span style="cursor:pointer;color:var(--rouge);" onclick="delComplaint(${(t.complaints.length-1-i)})">删除</span>
+              </div>
+              <div class="cb">${c.content}</div>
+              ${c.handling ? `<div style="color:var(--ink-light);font-size:11px;margin-top:4px;">处理：${c.handling}</div>` : ''}
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+
+    <!-- 完整时间线 -->
+    <div class="panel">
+      <h3>完整时间线 <small>这个人的所有事件按时间排序</small></h3>
+      ${renderTimeline(t)}
+    </div>
+
+    <!-- 危险操作 -->
+    <div class="panel" style="border-color:var(--ink);">
+      <h3 style="color:var(--ink);">人员状态与风控</h3>
+      <div class="form-row">
+        <label>合作状态</label>
+        <select id="ed-status">
+          ${getStatusOptions(role).map(opt => `<option ${t.status===opt?'selected':''}>${opt}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>黑名单</label>
+        <select id="ed-blacklist">
+          <option value="正常" ${t.blacklist_mark==='正常'?'selected':''}>正常</option>
+          <option value="谨慎合作" ${t.blacklist_mark==='谨慎合作'?'selected':''}>谨慎合作</option>
+          <option value="永久拉黑" ${t.blacklist_mark==='永久拉黑'?'selected':''}>永久拉黑</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>拉黑原因</label>
+        <input type="text" id="ed-blacklist-reason" value="${t.blacklist_reason || ''}" placeholder="如：放鸽子、收钱跑路等">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveTalentChanges()">保存全部修改</button>
+        <button class="btn" onclick="closeDrawer()">取消</button>
+        <button class="btn" style="margin-left:auto;color:var(--rouge);" onclick="confirmDelete()">删除档案</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProfessionalInfo(t) {
+  const rows = [];
+  const add = (k, v) => v && rows.push(`<div class="info-row"><span class="k">${k}</span><span class="v">${Array.isArray(v) ? v.join(' / ') : v}</span></div>`);
+
+  if (t.role_type === 'makeup') {
+    add('年龄', t.age);
+    add('意向', t.job_intention);
+    add('可上班', t.available_shifts);
+    add('期望薪资', t.expected_salary);
+    add('从业年限', t.experience_years);
+    add('擅长风格', t.makeup_styles);
+  } else if (t.role_type === 'photo') {
+    add('合作模式', t.cooperation_mode);
+    add('接单时段', t.available_time);
+    add('擅长风格', t.photo_styles);
+    add('熟悉外景', t.familiar_scenes);
+    add('自备设备', t.own_equipment);
+    add('机身型号', t.camera_body);
+    add('常用镜头', t.lenses);
+    add('整套道具', t.has_props);
+    add('道具清单', t.props_list);
+    add('个人优势', t.advantages);
+    add('交付时效', t.delivery_time);
+    add('期望报价', t.expected_fee);
+  } else if (t.role_type === 'retouch') {
+    add('合作模式', t.cooperation_mode);
+    add('接单时段', t.available_time);
+    add('擅长风格', t.retouch_styles);
+    add('软件技能', t.software_skills);
+    add('出片速度', t.delivery_speed);
+    add('个人优势', t.advantages);
+    add('报价标准', t.price_standard);
+  } else if (t.role_type === 'service') {
+    add('意向岗位', t.job_intention);
+    add('可上班', t.available_shifts);
+    add('熟悉平台', t.platforms);
+    add('期望薪资', t.expected_salary);
+    if (t.experience) add('经验说明', t.experience);
+  } else if (t.role_type === 'dress') {
+    add('年龄', t.age);
+    add('详细地址', t.detail_address);
+    add('通勤时长', t.commute_time);
+    add('可入职', t.entry_date);
+    add('期望薪资', t.expected_salary);
+    add('岗位意向', t.job_intention);
+    add('可上班', t.available_shifts);
+    add('周末节假日', t.weekend_holiday);
+    add('临时顶班', t.emergency_cover);
+    add('行业经验', t.industry_exp);
+    add('从业年限', t.experience_years);
+    add('之前门店', t.previous_store);
+    add('熟悉内容', t.dress_skills);
+    add('麻利度', t.efficiency_self);
+    add('眼里有活', t.proactive);
+    add('维护整洁', t.tidiness);
+    add('抗压能力', t.pressure);
+    if (t.strengths) add('个人特长', t.strengths);
+    if (t.weaknesses) add('自身短板', t.weaknesses);
+    if (t.other_requirements) add('其他要求', t.other_requirements);
+  } else if (t.role_type === 'model') {
+    add('性别', t.gender);
+    add('年龄', t.age);
+    add('身高', t.height ? t.height + ' cm' : '');
+    add('体重', t.weight ? t.weight + ' kg' : '');
+    add('三围', t.measurements);
+    add('穿衣尺码', t.clothing_size);
+    add('肤色', t.skin_tone);
+    add('通勤', t.commute_time);
+    add('可接单', t.available_time);
+    add('行业经验', t.industry_exp);
+    add('从业时长', t.experience_years);
+    add('可接类型', t.shoot_types);
+    add('古风仪态', t.pose_ability);
+    add('镜头表现', t.camera_ability);
+    add('合作形式', t.cooperation_form);
+    add('单套报价', t.price_single);
+    add('半天报价', t.price_half);
+    add('全天报价', t.price_full);
+    add('样片授权', t.sample_authorize);
+    add('线上宣传', t.online_authorize);
+    add('合拍类型', t.group_shoot);
+    add('特殊标识', t.special_marks);
+    add('多角度拍摄', t.multi_angle);
+    if (t.special_skills) add('个人特长', t.special_skills);
+  } else if (t.role_type === 'anchor') {
+    add('年龄', t.age);
+    add('身高', t.height ? t.height + ' cm' : '');
+    add('形象气质', t.image_style);
+    add('通勤', t.commute_time);
+    add('用工形式', t.job_intention);
+    add('可直播时段', t.live_time);
+    add('固定时段', t.fixed_schedule);
+    add('加播', t.emergency_live);
+    add('行业经验', t.industry_exp);
+    add('从业时长', t.experience_years);
+    add('擅长赛道', t.anchor_categories);
+    add('汉服认知', t.hanfu_knowledge);
+    if (t.live_account) add('直播账号', t.live_account);
+    if (t.fans_count) add('粉丝量', t.fans_count);
+    if (t.best_gmv) add('最高 GMV', t.best_gmv);
+    add('独家合作', t.exclusive);
+    add('口才', t.speech_ability);
+    add('镜头感', t.camera_ability);
+    add('销售能力', t.sales_ability);
+    add('拍短视频', t.short_video);
+    add('薪资模式', t.salary_mode);
+    add('期望报价', t.expected_salary);
+  }
+  if (t.remark) add('补充', t.remark);
+  return `<div class="info-grid">${rows.join('')}</div>`;
+}
+
+function renderPersonalitySection(t) {
+  // 所有岗位通用：性格 & 自荐
+  const hasContent = t.personality_type || t.comm_style || t.mbti || t.personality_intro || t.self_recommend;
+  if (!hasContent) return '';
+
+  return `
+    <div class="panel" style="border-color:var(--gold);">
+      <h3 style="color:var(--gold);">性格与自荐 <small>本人填写</small></h3>
+      <div class="info-grid">
+        ${t.personality_type ? `<div class="info-row"><span class="k">性格类型</span><span class="v">${t.personality_type}</span></div>` : ''}
+        ${t.mbti ? `<div class="info-row"><span class="k">MBTI</span><span class="v">${t.mbti}</span></div>` : ''}
+        ${t.comm_style && t.comm_style.length ? `<div class="info-row" style="grid-column:1/-1;"><span class="k">沟通风格</span><span class="v">${(t.comm_style||[]).join(' / ')}</span></div>` : ''}
+      </div>
+      ${t.personality_intro ? `
+        <div style="margin-top:14px;padding:12px 14px;background:var(--paper);border-left:3px solid var(--gold);">
+          <div style="font-size:11px;color:var(--ink-light);letter-spacing:2px;margin-bottom:6px;">性 格 自 述</div>
+          <div style="font-size:13px;line-height:1.8;color:var(--ink);">${t.personality_intro}</div>
+        </div>` : ''}
+      ${t.self_recommend ? `
+        <div style="margin-top:10px;padding:12px 14px;background:rgba(160,44,44,0.04);border-left:3px solid var(--rouge);">
+          <div style="font-size:11px;color:var(--rouge);letter-spacing:2px;margin-bottom:6px;">★ 自 我 推 荐</div>
+          <div style="font-size:13px;line-height:1.8;color:var(--ink);">${t.self_recommend}</div>
+        </div>` : ''}
+    </div>
+  `;
+}
+
+function renderAdminFields(t) {
+  const role = t.role_type;
+  const ratingKey = role === 'retouch' ? 'quality_rating' : role === 'service' ? 'service_rating' : 'tech_rating';
+  const scoreKey = role === 'photo' ? 'composition_score' : 'trial_score';
+
+  let html = `
+    <div class="form-row">
+      <label>综合评级</label>
+      <select id="ed-rating">
+        <option value="">未评</option>
+        <option value="S" ${t[ratingKey]==='S'?'selected':''}>S 顶级</option>
+        <option value="A" ${t[ratingKey]==='A'?'selected':''}>A 优秀</option>
+        <option value="B" ${t[ratingKey]==='B'?'selected':''}>B 合格</option>
+        <option value="C" ${t[ratingKey]==='C'?'selected':''}>C 较差</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>技术评分</label>
+      <div class="stars" id="star-group">
+        ${[1,2,3,4,5,6,7,8,9,10].map(i => `<span class="star ${i<=(t[scoreKey]||0)?'on':''}" data-val="${i}">★</span>`).join('')}
+      </div>
+      <span style="color:var(--ink-light);font-size:12px;" id="score-text">${t[scoreKey] || 0}/10</span>
+    </div>
+  `;
+
+  if (role === 'makeup') {
+    html += `
+      <div class="form-row"><label>工作效率</label><select id="ed-efficiency">
+        <option value="">-</option><option ${t.efficiency==='快'?'selected':''}>快</option><option ${t.efficiency==='中'?'selected':''}>中</option><option ${t.efficiency==='慢'?'selected':''}>慢</option></select></div>
+      <div class="form-row"><label>沟通态度</label><select id="ed-attitude">
+        <option value="">-</option><option ${t.attitude==='好'?'selected':''}>好</option><option ${t.attitude==='一般'?'selected':''}>一般</option><option ${t.attitude==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>卫生习惯</label><input type="text" id="ed-hygiene" value="${t.hygiene||''}" placeholder="工具消毒、个人形象..."></div>
+    `;
+  } else if (role === 'photo') {
+    html += `
+      <div class="form-row"><label>修图能力</label><select id="ed-retouch-ability">
+        <option value="">-</option><option ${t.retouch_ability==='好'?'selected':''}>好</option><option ${t.retouch_ability==='中'?'selected':''}>中</option><option ${t.retouch_ability==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>配合度</label><select id="ed-cooperation">
+        <option value="">-</option><option ${t.cooperation_attitude==='好'?'selected':''}>好</option><option ${t.cooperation_attitude==='一般'?'selected':''}>一般</option><option ${t.cooperation_attitude==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>守时</label><select id="ed-punctuality">
+        <option value="">-</option><option ${t.punctuality==='无迟到'?'selected':''}>无迟到</option><option ${t.punctuality==='偶尔迟到'?'selected':''}>偶尔迟到</option><option ${t.punctuality==='多次迟到'?'selected':''}>多次迟到</option></select></div>
+      <div class="form-row"><label>放鸽子次数</label><input type="number" id="ed-no-show" value="${t.no_show_count||0}" min="0"></div>
+    `;
+  } else if (role === 'retouch') {
+    html += `
+      <div class="form-row"><label>响应速度</label><select id="ed-response">
+        <option value="">-</option><option ${t.response_speed==='快'?'selected':''}>快</option><option ${t.response_speed==='中'?'selected':''}>中</option><option ${t.response_speed==='慢'?'selected':''}>慢</option></select></div>
+      <div class="form-row"><label>改图配合</label><select id="ed-revision">
+        <option value="">-</option><option ${t.revision_attitude==='好'?'selected':''}>好</option><option ${t.revision_attitude==='一般'?'selected':''}>一般</option><option ${t.revision_attitude==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>交付达标</label><select id="ed-delivery">
+        <option value="">-</option><option ${t.delivery_compliance==='按时交付'?'selected':''}>按时交付</option><option ${t.delivery_compliance==='偶尔延迟'?'selected':''}>偶尔延迟</option><option ${t.delivery_compliance==='经常延迟'?'selected':''}>经常延迟</option></select></div>
+    `;
+  } else if (role === 'service') {
+    html += `
+      <div class="form-row"><label>响应速度</label><select id="ed-response">
+        <option value="">-</option><option ${t.response_speed==='快'?'selected':''}>快</option><option ${t.response_speed==='中'?'selected':''}>中</option><option ${t.response_speed==='慢'?'selected':''}>慢</option></select></div>
+      <div class="form-row"><label>话术专业度</label><select id="ed-professional">
+        <option value="">-</option><option ${t.professionalism==='好'?'selected':''}>好</option><option ${t.professionalism==='一般'?'selected':''}>一般</option><option ${t.professionalism==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>转化率</label><input type="text" id="ed-conversion" value="${t.conversion_rate||''}" placeholder="如：XX%"></div>
+    `;
+  } else if (role === 'dress') {
+    html += `
+      <div class="form-row"><label>接客能力</label><select id="ed-reception">
+        <option value="">-</option>
+        <option ${t.reception_ability==='强'?'selected':''}>强</option>
+        <option ${t.reception_ability==='中'?'selected':''}>中</option>
+        <option ${t.reception_ability==='弱'?'selected':''}>弱</option></select></div>
+      <div class="form-row"><label>整理速度</label><select id="ed-tidy-speed">
+        <option value="">-</option>
+        <option ${t.tidy_speed==='快'?'selected':''}>快</option>
+        <option ${t.tidy_speed==='中'?'selected':''}>中</option>
+        <option ${t.tidy_speed==='慢'?'selected':''}>慢</option></select></div>
+      <div class="form-row"><label>形象气质</label><select id="ed-image">
+        <option value="">-</option>
+        <option ${t.image_temperament==='出众'?'selected':''}>出众</option>
+        <option ${t.image_temperament==='良好'?'selected':''}>良好</option>
+        <option ${t.image_temperament==='一般'?'selected':''}>一般</option></select></div>
+      <div class="form-row"><label>搭配审美</label><select id="ed-aesthetic">
+        <option value="">-</option>
+        <option ${t.aesthetic==='好'?'selected':''}>好</option>
+        <option ${t.aesthetic==='中'?'selected':''}>中</option>
+        <option ${t.aesthetic==='待提升'?'selected':''}>待提升</option></select></div>
+    `;
+  } else if (role === 'model') {
+    html += `
+      <div class="form-row"><label>古风适配度</label><select id="ed-hanfu-fit">
+        <option value="">-</option>
+        <option ${t.hanfu_fit==='极佳'?'selected':''}>极佳</option>
+        <option ${t.hanfu_fit==='良好'?'selected':''}>良好</option>
+        <option ${t.hanfu_fit==='一般'?'selected':''}>一般</option></select></div>
+      <div class="form-row"><label>配合度</label><select id="ed-model-coop">
+        <option value="">-</option>
+        <option ${t.cooperation_attitude==='很配合'?'selected':''}>很配合</option>
+        <option ${t.cooperation_attitude==='一般'?'selected':''}>一般</option>
+        <option ${t.cooperation_attitude==='矫情'?'selected':''}>矫情</option></select></div>
+      <div class="form-row"><label>守时</label><select id="ed-model-punctual">
+        <option value="">-</option>
+        <option ${t.punctuality==='很守时'?'selected':''}>很守时</option>
+        <option ${t.punctuality==='偶尔迟到'?'selected':''}>偶尔迟到</option>
+        <option ${t.punctuality==='多次迟到'?'selected':''}>多次迟到</option></select></div>
+      <div class="form-row"><label>放鸽子次数</label><input type="number" id="ed-no-show" value="${t.no_show_count||0}" min="0"></div>
+      <div class="form-row" style="align-items:flex-start;"><label>★ 互免承诺<br><span style="font-size:10px;color:var(--ink-light);">承诺给的精修是否交付</span></label>
+        <textarea id="ed-mutual-promise" placeholder="如：2024-XX 拍摄,承诺给 5 张精修,已交付">${t.mutual_promise || ''}</textarea></div>
+      <div class="form-row"><label>★ 肖像授权</label><select id="ed-portrait">
+        <option value="">未明确</option>
+        <option ${t.portrait_rights==='仅店铺内部'?'selected':''}>仅店铺内部</option>
+        <option ${t.portrait_rights==='店铺账号宣传'?'selected':''}>店铺账号宣传</option>
+        <option ${t.portrait_rights==='商业广告'?'selected':''}>商业广告</option>
+        <option ${t.portrait_rights==='永久授权'?'selected':''}>永久授权</option>
+        <option ${t.portrait_rights==='限期授权'?'selected':''}>限期授权</option></select></div>
+    `;
+  } else if (role === 'anchor') {
+    html += `
+      <div class="form-row"><label>实际口才</label><select id="ed-real-speech">
+        <option value="">-</option>
+        <option ${t.real_speech==='好'?'selected':''}>好</option>
+        <option ${t.real_speech==='中'?'selected':''}>中</option>
+        <option ${t.real_speech==='差'?'selected':''}>差</option></select></div>
+      <div class="form-row"><label>实际转化</label><select id="ed-real-conv">
+        <option value="">-</option>
+        <option ${t.real_conversion==='强'?'selected':''}>强</option>
+        <option ${t.real_conversion==='中'?'selected':''}>中</option>
+        <option ${t.real_conversion==='弱'?'selected':''}>弱</option></select></div>
+      <div class="form-row"><label>情绪稳定度</label><select id="ed-emotion">
+        <option value="">-</option>
+        <option ${t.emotion_stable==='稳定'?'selected':''}>稳定</option>
+        <option ${t.emotion_stable==='一般'?'selected':''}>一般</option>
+        <option ${t.emotion_stable==='易玻璃心'?'selected':''}>易玻璃心</option></select></div>
+      <div class="form-row"><label>平均场销售</label><input type="text" id="ed-avg-sales" value="${t.avg_sales || ''}" placeholder="如:XXXX 元/场"></div>
+      <div class="form-row"><label>守时</label><select id="ed-anchor-punctual">
+        <option value="">-</option>
+        <option ${t.punctuality==='很守时'?'selected':''}>很守时</option>
+        <option ${t.punctuality==='偶尔迟到'?'selected':''}>偶尔迟到</option>
+        <option ${t.punctuality==='多次迟到'?'selected':''}>多次迟到</option></select></div>
+    `;
+  }
+
+  html += `
+    <div class="form-row"><label>上岗次数</label><input type="number" id="ed-work" value="${t.work_count||0}" min="0"></div>
+    <div class="form-row"><label>客诉次数</label><input type="number" id="ed-complaint" value="${t.complaint_count||0}" min="0"></div>
+    <div class="form-row"><label>是否可再约</label><select id="ed-rebookable">
+      <option value="">-</option><option ${t.re_bookable==='可再约'?'selected':''}>可再约</option><option ${t.re_bookable==='待定'?'selected':''}>待定</option><option ${t.re_bookable==='淘汰'?'selected':''}>淘汰</option></select></div>
+    <div class="form-row" style="align-items:flex-start;"><label>优缺点备注</label><textarea id="ed-pros-cons">${t.pros_cons || ''}</textarea></div>
+  `;
+
+  return html;
+}
+
+function getStatusOptions(role) {
+  if (role === 'makeup') return ['待复试', '已录用', '兼职合作', '已离职', '拉黑'];
+  if (role === 'dress') return ['待复试', '已录用', '兼职合作', '已离职', '拉黑'];
+  if (role === 'photo') return ['待复试', '长期签约', '偶尔合作', '已终止', '拉黑'];
+  if (role === 'retouch') return ['待复试', '长期合作', '偶尔接单', '已淘汰', '拉黑'];
+  if (role === 'model') return ['待试拍', '常用模特', '互免合作', '签约', '已淘汰', '拉黑'];
+  if (role === 'anchor') return ['待试播', '在职', '兼职合作', '已离职', '拉黑'];
+  if (role === 'service') return ['在职', '离职', '拉黑'];
+  return [];
+}
+
+/* ============== 评分星星 ============== */
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('star')) {
+    const val = +e.target.dataset.val;
+    const group = e.target.closest('.stars');
+    group.querySelectorAll('.star').forEach(s => {
+      s.classList.toggle('on', +s.dataset.val <= val);
+    });
+    document.getElementById('score-text').textContent = `${val}/10`;
+  }
+});
+
+/* ============== 保存 ============== */
+async function saveTalentChanges() {
+  const t = currentTalent;
+  const role = t.role_type;
+  const ratingKey = role === 'retouch' ? 'quality_rating' : role === 'service' ? 'service_rating' : 'tech_rating';
+  const scoreKey = role === 'photo' ? 'composition_score' : 'trial_score';
+
+  t[ratingKey] = document.getElementById('ed-rating').value;
+  const stars = document.querySelectorAll('#star-group .star.on').length;
+  t[scoreKey] = stars;
+  t.status = document.getElementById('ed-status').value;
+  t.blacklist_mark = document.getElementById('ed-blacklist').value;
+  t.blacklist_reason = document.getElementById('ed-blacklist-reason').value;
+  t.work_count = +document.getElementById('ed-work').value || 0;
+  t.complaint_count = +document.getElementById('ed-complaint').value || 0;
+  t.re_bookable = document.getElementById('ed-rebookable').value;
+  t.pros_cons = document.getElementById('ed-pros-cons').value;
+
+  if (role === 'makeup') {
+    t.efficiency = document.getElementById('ed-efficiency').value;
+    t.attitude = document.getElementById('ed-attitude').value;
+    t.hygiene = document.getElementById('ed-hygiene').value;
+  } else if (role === 'photo') {
+    t.retouch_ability = document.getElementById('ed-retouch-ability').value;
+    t.cooperation_attitude = document.getElementById('ed-cooperation').value;
+    t.punctuality = document.getElementById('ed-punctuality').value;
+    t.no_show_count = +document.getElementById('ed-no-show').value || 0;
+  } else if (role === 'retouch') {
+    t.response_speed = document.getElementById('ed-response').value;
+    t.revision_attitude = document.getElementById('ed-revision').value;
+    t.delivery_compliance = document.getElementById('ed-delivery').value;
+  } else if (role === 'service') {
+    t.response_speed = document.getElementById('ed-response').value;
+    t.professionalism = document.getElementById('ed-professional').value;
+    t.conversion_rate = document.getElementById('ed-conversion').value;
+  } else if (role === 'dress') {
+    t.reception_ability = document.getElementById('ed-reception').value;
+    t.tidy_speed = document.getElementById('ed-tidy-speed').value;
+    t.image_temperament = document.getElementById('ed-image').value;
+    t.aesthetic = document.getElementById('ed-aesthetic').value;
+  } else if (role === 'model') {
+    t.hanfu_fit = document.getElementById('ed-hanfu-fit').value;
+    t.cooperation_attitude = document.getElementById('ed-model-coop').value;
+    t.punctuality = document.getElementById('ed-model-punctual').value;
+    t.no_show_count = +document.getElementById('ed-no-show').value || 0;
+    t.mutual_promise = document.getElementById('ed-mutual-promise').value;
+    t.portrait_rights = document.getElementById('ed-portrait').value;
+  } else if (role === 'anchor') {
+    t.real_speech = document.getElementById('ed-real-speech').value;
+    t.real_conversion = document.getElementById('ed-real-conv').value;
+    t.emotion_stable = document.getElementById('ed-emotion').value;
+    t.avg_sales = document.getElementById('ed-avg-sales').value;
+    t.punctuality = document.getElementById('ed-anchor-punctual').value;
+  }
+
+  await updateTalent(t);
+  toast('保存成功');
+  closeDrawer();
+  renderList();
+}
+
+async function confirmDelete() {
+  if (!confirm(`确认删除「${currentTalent.name}」的档案？此操作不可恢复。`)) return;
+  await deleteTalent(currentTalent.id);
+  toast('已删除');
+  closeDrawer();
+  renderList();
+}
+
+/* ============== 客诉管理 ============== */
+function openComplaintModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('modal-content').innerHTML = `
+    <h3>新增评价记录</h3>
+    <div class="form-row"><label>类型</label><select id="cp-type"><option>客诉</option><option>好评</option></select></div>
+    <div class="form-row"><label>日期</label><input type="date" id="cp-date" value="${today}"></div>
+    <div class="form-row"><label>客人</label><input type="text" id="cp-customer" placeholder="姓名或抖音昵称"></div>
+    <div class="form-row" style="align-items:flex-start;"><label>事由</label><textarea id="cp-content" placeholder="详细描述..."></textarea></div>
+    <div class="form-row" style="align-items:flex-start;"><label>处理结果</label><textarea id="cp-handling" placeholder="如何处理的、客人最终反应等"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveComplaint()">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function saveComplaint() {
+  const t = currentTalent;
+  if (!t.complaints) t.complaints = [];
+  const type = document.getElementById('cp-type').value;
+  t.complaints.push({
+    type: type,
+    date: document.getElementById('cp-date').value,
+    customer: document.getElementById('cp-customer').value,
+    content: document.getElementById('cp-content').value,
+    handling: document.getElementById('cp-handling').value
+  });
+  if (type === '客诉') t.complaint_count = (t.complaint_count || 0) + 1;
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('已添加');
+}
+
+async function delComplaint(idx) {
+  if (!confirm('删除这条记录？')) return;
+  const t = currentTalent;
+  const item = t.complaints[idx];
+  if (item.type === '客诉') t.complaint_count = Math.max(0, (t.complaint_count || 0) - 1);
+  t.complaints.splice(idx, 1);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+/* ============== ⚡ 派单管理 ============== */
+function openDispatchModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('modal-content').innerHTML = `
+    <h3>⚡ 派单</h3>
+    <p style="font-size:12px;color:var(--ink-soft);margin-bottom:14px;">派单后会自动：① 在该日期标记档期占用 ② 上岗次数 +1 ③ 留下永久派单记录</p>
+    <div class="form-row"><label>日期</label><input type="date" id="dp-date" value="${today}"></div>
+    <div class="form-row"><label>任务</label><input type="text" id="dp-task" placeholder="如:周六雁塔大片 / 直播 19-22 点 / 妆造 3 套"></div>
+    <div class="form-row"><label>客户</label><input type="text" id="dp-customer" placeholder="选填,客人姓名或订单号"></div>
+    <div class="form-row"><label>报酬</label><input type="text" id="dp-fee" placeholder="数字,如 500"></div>
+    <div class="form-row" style="align-items:flex-start;"><label>备注</label><textarea id="dp-note" placeholder="如:外景大唐不夜城,搭档摄影师陈墨白"></textarea></div>
+    <div class="form-row"><label><input type="checkbox" id="dp-payment" checked> 同时创建一条"未结"结算</label></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveDispatch()">确认派单</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function saveDispatch() {
+  const t = currentTalent;
+  const date = document.getElementById('dp-date').value;
+  const task = document.getElementById('dp-task').value;
+  const customer = document.getElementById('dp-customer').value;
+  const fee = document.getElementById('dp-fee').value;
+  const note = document.getElementById('dp-note').value;
+  const createPayment = document.getElementById('dp-payment').checked;
+
+  if (!date || !task) { alert('请填写日期和任务'); return; }
+
+  if (!t.dispatch_records) t.dispatch_records = [];
+  t.dispatch_records.push({ date, task, customer, fee, note });
+  t.work_count = (t.work_count || 0) + 1;
+
+  // 自动占用档期
+  if (!t.calendar_busy) t.calendar_busy = [];
+  if (!t.calendar_busy.includes(date)) t.calendar_busy.push(date);
+
+  // 自动创建未结结算
+  if (createPayment && fee) {
+    if (!t.payment_records) t.payment_records = [];
+    t.payment_records.push({ date, project: task, amount: Number(fee) || 0, settled: false, note });
+  }
+
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('派单成功 · 档期已占用');
+}
+
+async function delDispatch(idx) {
+  if (!confirm('删除这条派单记录？档期占用和上岗次数会回退。')) return;
+  const t = currentTalent;
+  const d = t.dispatch_records[idx];
+  t.dispatch_records.splice(idx, 1);
+  t.work_count = Math.max(0, (t.work_count || 0) - 1);
+  // 取消档期占用
+  if (t.calendar_busy && d.date) {
+    t.calendar_busy = t.calendar_busy.filter(x => x !== d.date);
+  }
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+/* ============== 📞 联系记录 ============== */
+function openContactModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('modal-content').innerHTML = `
+    <h3>📞 记录联系</h3>
+    <div class="form-row"><label>日期</label><input type="date" id="ct-date" value="${today}"></div>
+    <div class="form-row"><label>渠道</label><select id="ct-channel"><option>微信</option><option>电话</option><option>短信</option><option>抖音私信</option><option>小红书私信</option></select></div>
+    <div class="form-row"><label>目的</label><input type="text" id="ct-purpose" placeholder="如:派单意向 / 报价确认 / 改期通知"></div>
+    <div class="form-row"><label><input type="checkbox" id="ct-replied"> 已回复</label></div>
+    <div class="form-row" style="align-items:flex-start;"><label>备注</label><textarea id="ct-note" placeholder="选填,聊了什么、对方反应等"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveContact()">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function saveContact() {
+  const t = currentTalent;
+  if (!t.contact_records) t.contact_records = [];
+  t.contact_records.push({
+    date: document.getElementById('ct-date').value,
+    channel: document.getElementById('ct-channel').value,
+    purpose: document.getElementById('ct-purpose').value,
+    replied: document.getElementById('ct-replied').checked,
+    note: document.getElementById('ct-note').value
+  });
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('已记录');
+}
+
+async function markReplied(idx) {
+  const t = currentTalent;
+  t.contact_records[idx].replied = true;
+  t.contact_records[idx].replied_at = new Date().toISOString().slice(0,10);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+async function delContact(idx) {
+  if (!confirm('删除？')) return;
+  const t = currentTalent;
+  t.contact_records.splice(idx, 1);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+function calcResponseRate(t) {
+  const cr = t.contact_records || [];
+  if (cr.length === 0) return '-';
+  const replied = cr.filter(c => c.replied).length;
+  return Math.round(replied / cr.length * 100);
+}
+
+/* ============== 💰 结算记录 ============== */
+function openPaymentModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('modal-content').innerHTML = `
+    <h3>💰 记录结算</h3>
+    <div class="form-row"><label>日期</label><input type="date" id="pm-date" value="${today}"></div>
+    <div class="form-row"><label>项目</label><input type="text" id="pm-project" placeholder="如:周六大片 / 月薪 X 月份"></div>
+    <div class="form-row"><label>金额 ¥</label><input type="number" id="pm-amount" placeholder="数字"></div>
+    <div class="form-row"><label><input type="checkbox" id="pm-settled" checked> 已支付</label></div>
+    <div class="form-row" style="align-items:flex-start;"><label>备注</label><textarea id="pm-note" placeholder="如:微信转账 XXX / 现金"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="savePayment()">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function savePayment() {
+  const t = currentTalent;
+  if (!t.payment_records) t.payment_records = [];
+  t.payment_records.push({
+    date: document.getElementById('pm-date').value,
+    project: document.getElementById('pm-project').value,
+    amount: Number(document.getElementById('pm-amount').value) || 0,
+    settled: document.getElementById('pm-settled').checked,
+    note: document.getElementById('pm-note').value
+  });
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('已记录');
+}
+
+async function markPaid(idx) {
+  const t = currentTalent;
+  t.payment_records[idx].settled = true;
+  t.payment_records[idx].paid_at = new Date().toISOString().slice(0,10);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+async function delPayment(idx) {
+  if (!confirm('删除？')) return;
+  const t = currentTalent;
+  t.payment_records.splice(idx, 1);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+function renderPaymentSummary(t) {
+  const pr = t.payment_records || [];
+  if (!pr.length) return '0 笔';
+  const total = pr.reduce((s,p) => s + Number(p.amount || 0), 0);
+  const unsettled = pr.filter(p => !p.settled).reduce((s,p) => s + Number(p.amount || 0), 0);
+  return `${pr.length} 笔 · 累计 ¥${total} · 未结 ¥${unsettled}`;
+}
+
+/* ============== 📺 直播场次 ============== */
+function openLiveSessionModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('modal-content').innerHTML = `
+    <h3>📺 记录直播场次</h3>
+    <div class="form-row"><label>日期</label><input type="date" id="ls-date" value="${today}"></div>
+    <div class="form-row"><label>时长</label><input type="text" id="ls-duration" placeholder="如:3 小时 / 19-22 点"></div>
+    <div class="form-row"><label>观看人数</label><input type="text" id="ls-views" placeholder="如:X 万 / XXXX 人次"></div>
+    <div class="form-row"><label>销售额 ¥</label><input type="number" id="ls-sales" placeholder="数字"></div>
+    <div class="form-row" style="align-items:flex-start;"><label>备注</label><textarea id="ls-note" placeholder="状态如何、爆款款式、问题点等"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveLiveSession()">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function saveLiveSession() {
+  const t = currentTalent;
+  if (!t.live_sessions) t.live_sessions = [];
+  t.live_sessions.push({
+    date: document.getElementById('ls-date').value,
+    duration: document.getElementById('ls-duration').value,
+    views: document.getElementById('ls-views').value,
+    sales: document.getElementById('ls-sales').value,
+    note: document.getElementById('ls-note').value
+  });
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('已记录');
+}
+
+async function delLiveSession(idx) {
+  if (!confirm('删除？')) return;
+  const t = currentTalent;
+  t.live_sessions.splice(idx, 1);
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+/* ============== 🏷 快速标签 ============== */
+async function toggleFlag(flag) {
+  const t = currentTalent;
+  if (!t.flags) t.flags = [];
+  if (t.flags.includes(flag)) {
+    t.flags = t.flags.filter(f => f !== flag);
+  } else {
+    t.flags.push(flag);
+  }
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+/* ============== 完整时间线 ============== */
+function renderTimeline(t) {
+  const events = [];
+  (t.dispatch_records || []).forEach(d => events.push({ date: d.date, type: 'dispatch', title: '派单', desc: `${d.task || ''} ${d.fee ? '· ¥'+d.fee : ''}` }));
+  (t.contact_records || []).forEach(c => events.push({ date: c.date, type: 'contact', title: '联系', desc: `${c.channel} · ${c.purpose || ''} ${c.replied ? '(已回)' : '(未回)'}` }));
+  (t.payment_records || []).forEach(p => events.push({ date: p.date, type: 'payment', title: '结算', desc: `${p.project || ''} · ¥${p.amount} ${p.settled ? '(已结)' : '(未结)'}` }));
+  (t.complaints || []).forEach(c => events.push({ date: c.date, type: c.type === '客诉' ? 'complaint' : 'praise', title: c.type, desc: `${c.customer || ''} · ${c.content}` }));
+  (t.live_sessions || []).forEach(l => events.push({ date: l.date, type: 'live', title: '直播', desc: `${l.duration || ''} · 销售 ¥${l.sales || 0}` }));
+  if (t.created_at) events.push({ date: t.created_at.slice(0,10), type: 'create', title: '入库', desc: '档案创建' });
+
+  events.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+
+  if (!events.length) return '<div class="empty">暂无事件记录</div>';
+
+  return `
+    <div class="timeline">
+      ${events.map(e => `
+        <div class="timeline-item is-${e.type}">
+          <div class="ti-head">${e.date}</div>
+          <div class="ti-body"><span class="ti-tag">${e.title}</span>${e.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/* ============== 视频预览 ============== */
+function previewVideo(idx) {
+  const t = currentTalent;
+  const v = (t.video_urls || [])[idx];
+  if (!v) return;
+  document.getElementById('modal-content').innerHTML = `
+    <h3>${v.name || '视频预览'}</h3>
+    <video src="${v.url}" controls autoplay style="width:100%;max-height:60vh;background:black;"></video>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+/* ============== 档期 ============== */
+let calendarMonth = new Date();
+function renderCalendar(t) {
+  const y = calendarMonth.getFullYear();
+  const m = calendarMonth.getMonth();
+  const first = new Date(y, m, 1);
+  const last = new Date(y, m+1, 0);
+  const startDay = first.getDay();
+  const busy = t.calendar_busy || [];
+  const free = t.calendar_free || [];
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  let html = `
+    <div class="cal-controls">
+      <button class="btn" onclick="changeMonth(-1)">‹</button>
+      <span class="month">${y} 年 ${m+1} 月</span>
+      <button class="btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="calendar">
+      ${['日','一','二','三','四','五','六'].map(d => `<div class="cal-head">${d}</div>`).join('')}
+      ${Array(startDay).fill('<div></div>').join('')}
+  `;
+  for (let d = 1; d <= last.getDate(); d++) {
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isBusy = busy.includes(dateStr);
+    const isFree = free.includes(dateStr);
+    const isToday = dateStr === todayStr;
+    html += `
+      <div class="cal-day ${isBusy?'busy':isFree?'free':''}" onclick="toggleDay('${dateStr}')"
+           style="${isToday?'box-shadow:inset 0 0 0 2px var(--gold);':''}">
+        <div class="d-num">${d}</div>
+        ${isBusy ? '<div class="d-tag">占</div>' : isFree ? '<div class="d-tag">空</div>' : ''}
+      </div>
+    `;
+  }
+  html += `</div>
+    <div class="cal-legend">
+      <span><span class="dot" style="background:var(--rouge);"></span>已占用</span>
+      <span><span class="dot" style="background:rgba(90,125,79,0.3);"></span>明确空闲</span>
+      <span>点击日期切换状态</span>
+    </div>
+  `;
+  return html;
+}
+
+function changeMonth(delta) {
+  calendarMonth.setMonth(calendarMonth.getMonth() + delta);
+  renderDrawerBody();
+}
+
+async function toggleDay(dateStr) {
+  const t = currentTalent;
+  if (!t.calendar_busy) t.calendar_busy = [];
+  if (!t.calendar_free) t.calendar_free = [];
+  const inBusy = t.calendar_busy.includes(dateStr);
+  const inFree = t.calendar_free.includes(dateStr);
+  if (!inBusy && !inFree) {
+    t.calendar_busy.push(dateStr);
+  } else if (inBusy) {
+    t.calendar_busy = t.calendar_busy.filter(d => d !== dateStr);
+    t.calendar_free.push(dateStr);
+  } else {
+    t.calendar_free = t.calendar_free.filter(d => d !== dateStr);
+  }
+  await updateTalent(t);
+  renderDrawerBody();
+}
+
+/* ============== 试用凭证 ============== */
+async function uploadTrialImages(e) {
+  const files = [...e.target.files];
+  for (const f of files) {
+    const b64 = await fileToBase64Compressed(f);
+    if (!currentTalent.trial_images) currentTalent.trial_images = [];
+    currentTalent.trial_images.push(b64);
+  }
+  await updateTalent(currentTalent);
+  renderDrawerBody();
+  e.target.value = '';
+}
+
+async function delTrialImg(idx) {
+  currentTalent.trial_images.splice(idx, 1);
+  await updateTalent(currentTalent);
+  renderDrawerBody();
+}
+
+function fileToBase64Compressed(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, 1000 / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============== 通用 ============== */
+function previewImg(url) {
+  document.getElementById('preview-img').src = url;
+  document.getElementById('preview-mask').classList.add('show');
+}
+document.getElementById('preview-mask').addEventListener('click', () => {
+  document.getElementById('preview-mask').classList.remove('show');
+});
+function closeModal() {
+  document.getElementById('modal-mask').classList.remove('show');
+}
+document.getElementById('modal-mask').addEventListener('click', e => {
+  if (e.target.id === 'modal-mask') closeModal();
+});
+
+function copyText(text, evt) {
+  if (evt) evt.preventDefault();
+  navigator.clipboard.writeText(text).then(() => toast(`已复制：${text}`));
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;top:30px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 22px;letter-spacing:2px;z-index:300;font-size:13px;`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1800);
+}
+
+/* ============== 导出 Excel ============== */
+async function exportExcel() {
+  const all = await getAllTalents();
+  let list = all;
+  if (currentView !== 'all' && currentView !== 'blacklist') {
+    list = list.filter(t => t.role_type === currentView);
+  }
+  if (currentView === 'blacklist') {
+    list = list.filter(t => t.blacklist_mark && t.blacklist_mark !== '正常');
+  }
+
+  const headers = ['姓名','岗位','手机','微信','居住','评级','状态','上岗次数','客诉次数','黑名单','擅长风格','报价/期望薪资','机身','镜头','整套道具','个人优势','性格','MBTI','性格自述','自我推荐','身高','尺码','肤色','合作形式','肖像授权','直播账号','粉丝量','AI 备注','人工备注','AI 解析次数','登记时间','优缺点','推荐人'];
+  const rows = list.map(t => [
+    t.name, ROLE_NAME[t.role_type], t.phone, t.wechat, t.residence,
+    t.tech_rating || t.quality_rating || t.service_rating || '',
+    t.status,
+    t.work_count || 0,
+    t.complaint_count || 0,
+    t.blacklist_mark,
+    [].concat(t.makeup_styles||[], t.photo_styles||[], t.retouch_styles||[], t.dress_skills||[], t.shoot_types||[], t.anchor_categories||[]).join('/'),
+    t.expected_fee || t.price_standard || t.expected_salary || t.price_single || '',
+    t.camera_body || '',
+    t.lenses || '',
+    t.has_props || '',
+    (t.advantages || '').replace(/[\r\n]/g, ' '),
+    t.personality_type || '',
+    t.mbti || '',
+    (t.personality_intro || '').replace(/[\r\n]/g, ' '),
+    (t.self_recommend || '').replace(/[\r\n]/g, ' '),
+    t.height ? t.height + 'cm' : '',
+    t.clothing_size || '',
+    t.skin_tone || '',
+    (t.cooperation_form || []).join('/'),
+    t.portrait_rights || '',
+    t.live_account || '',
+    t.fans_count || '',
+    (t.ai_notes || '').replace(/[\r\n]/g, ' '),
+    (t.manual_notes || '').replace(/[\r\n]/g, ' '),
+    (t.ai_history || []).length,
+    new Date(t.created_at).toLocaleDateString(),
+    (t.pros_cons || '').replace(/[\r\n]/g, ' '),
+    t.referrer || ''
+  ]);
+
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  csv += rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `云锦长安人才库_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('已导出，可用 Excel 打开');
+}
+
+/* ============== 运营看板 ============== */
+async function renderDashboard() {
+  const all = await getAllTalents();
+  const total = all.length;
+  const sLevel = all.filter(t => ['S'].includes(t.tech_rating || t.quality_rating || t.service_rating)).length;
+  const pending = all.filter(t => /待复试|待试拍|待试播/.test(t.status || '')).length;
+  const blacklist = all.filter(t => t.blacklist_mark === '永久拉黑').length;
+  const weekend = countWeekendAvailable(all);
+  const followup = all.filter(isNeedFollowup);
+  const unsettled = countUnsettled(all);
+  const undeliveredPromise = all.filter(t => t.role_type === 'model' && t.mutual_promise && /未交付|未给|欠/.test(t.mutual_promise));
+  const recent7 = all.filter(t => (Date.now() - new Date(t.created_at).getTime()) < 7*86400000);
+
+  // 派单本月统计
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  let monthDispatches = 0;
+  all.forEach(t => {
+    (t.dispatch_records || []).forEach(d => {
+      if (new Date(d.date) >= monthStart) monthDispatches++;
+    });
+  });
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-head">
+      <div class="page-title">运营看板 <small>${new Date().toLocaleDateString('zh-CN', { weekday: 'long', month: 'long', day: 'numeric' })}</small></div>
+      <div class="actions">
+        <button class="btn btn-ai" onclick="currentView='ai-import';refreshNav();render();">
+          <span style="display:inline-block;width:18px;height:18px;background:white;color:var(--rouge);border-radius:3px;text-align:center;font-size:10px;line-height:18px;font-weight:600;margin-right:6px;">AI</span>
+          智能录入档案
+        </button>
+        <button class="btn" onclick="currentView='all';refreshNav();render();">查看全部人才</button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="stat-card">
+        <div class="stat-label">人 才 总 数</div>
+        <div class="stat-value">${total}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">S 级 顶 配</div>
+        <div class="stat-value" style="color:var(--rouge);">${sLevel}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本 周 末 可 约</div>
+        <div class="stat-value" style="color:var(--green);">${weekend}<span class="unit">位</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本 月 派 单</div>
+        <div class="stat-value" style="color:var(--gold);">${monthDispatches}<span class="unit">次</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">近 7 日 新 增</div>
+        <div class="stat-value">${recent7.length}<span class="unit">位</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;">
+      <!-- 警报区 -->
+      <div class="panel" style="background:white;border:1px solid var(--line-soft);padding:20px;">
+        <h3 style="font-size:14px;letter-spacing:3px;color:var(--rouge);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft);">⚠ 待处理事项</h3>
+
+        <div class="dash-warn-row" style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(201,122,60,0.08);border-left:3px solid var(--orange);">
+            <span>需跟进的人员</span>
+            <span style="font-weight:600;color:var(--orange);font-family:'Cormorant Garamond',serif;font-size:18px;">${followup.length}</span>
+          </div>
+        </div>
+
+        <div class="dash-warn-row" style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(160,44,44,0.06);border-left:3px solid var(--rouge);">
+            <span>欠款未结清</span>
+            <span style="font-weight:600;color:var(--rouge);font-family:'Cormorant Garamond',serif;font-size:18px;">${unsettled.count} 笔 / ¥ ${unsettled.amount}</span>
+          </div>
+        </div>
+
+        <div class="dash-warn-row" style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(184,147,90,0.08);border-left:3px solid var(--gold);">
+            <span>互免承诺未交付（模特）</span>
+            <span style="font-weight:600;color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:18px;">${undeliveredPromise.length}</span>
+          </div>
+        </div>
+
+        <div class="dash-warn-row">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(42,37,34,0.05);border-left:3px solid var(--ink);">
+            <span>待复试 / 试拍 / 试播</span>
+            <span style="font-weight:600;color:var(--ink);font-family:'Cormorant Garamond',serif;font-size:18px;">${pending}</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="currentView='followup';refreshNav();render();">进入待跟进列表 →</button>
+      </div>
+
+      <!-- 周末派单 -->
+      <div class="panel" style="background:white;border:1px solid var(--line-soft);padding:20px;">
+        <h3 style="font-size:14px;letter-spacing:3px;color:var(--rouge);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft);">📅 本周末可派单</h3>
+        ${renderWeekendList(all)}
+      </div>
+    </div>
+
+    <div class="panel" style="background:white;border:1px solid var(--line-soft);padding:20px;margin-top:18px;">
+      <h3 style="font-size:14px;letter-spacing:3px;color:var(--rouge);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft);">📋 最近活动</h3>
+      ${renderRecentActivity(all)}
+    </div>
+  `;
+}
+
+function countUnsettled(all) {
+  let count = 0, amount = 0;
+  all.forEach(t => {
+    (t.payment_records || []).forEach(p => {
+      if (!p.settled && Number(p.amount) > 0) {
+        count++;
+        amount += Number(p.amount) || 0;
+      }
+    });
+  });
+  return { count, amount };
+}
+
+function renderWeekendList(all) {
+  const now = new Date();
+  const dow = now.getDay();
+  const sat = new Date(now); sat.setDate(now.getDate() + ((6 - dow + 7) % 7 || 7));
+  const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+  const fmt = d => d.toISOString().slice(0,10);
+  const candidates = all.filter(t => {
+    const busy = t.calendar_busy || [];
+    const r = t.tech_rating || t.quality_rating || t.service_rating || '';
+    return !busy.includes(fmt(sat)) && !busy.includes(fmt(sun)) && ['S','A'].includes(r) && t.blacklist_mark === '正常';
+  }).slice(0, 8);
+  if (!candidates.length) return '<div class="empty">暂无符合条件的人才</div>';
+  return `
+    <div style="font-size:11px;color:var(--ink-light);margin-bottom:10px;">A 级以上 · 周末无占用 · 显示前 8 位</div>
+    ${candidates.map(t => `
+      <div onclick="openDrawer(${t.id})" style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-soft);cursor:pointer;">
+        <span class="rating rating-${t.tech_rating || t.quality_rating || t.service_rating}" style="margin-right:12px;">${t.tech_rating || t.quality_rating || t.service_rating}</span>
+        <span style="flex:1;font-weight:500;">${t.name}</span>
+        <span class="role-badge">${ROLE_NAME[t.role_type]}</span>
+        <span style="color:var(--ink-light);font-size:12px;margin-left:12px;font-family:'Cormorant Garamond',serif;">${t.phone}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+function renderRecentActivity(all) {
+  // 收集所有"事件"：派单/客诉/联系/试用/创建
+  const events = [];
+  all.forEach(t => {
+    (t.dispatch_records || []).forEach(d => events.push({ date: d.date, type: '派单', desc: `派单 ${t.name}：${d.task || ''}`, talent: t }));
+    (t.complaints || []).forEach(c => events.push({ date: c.date, type: c.type, desc: `${t.name}：${c.content || ''}`, talent: t }));
+    (t.contact_records || []).forEach(c => events.push({ date: c.date, type: '联系', desc: `联系 ${t.name}${c.replied ? '（已回复）' : '（待回复）'}`, talent: t }));
+    if (t.created_at) events.push({ date: t.created_at.slice(0,10), type: '入库', desc: `${t.name} 入库`, talent: t });
+  });
+  events.sort((a,b) => b.date.localeCompare(a.date));
+  const recent = events.slice(0, 10);
+  if (!recent.length) return '<div class="empty">暂无活动记录</div>';
+  return recent.map(e => `
+    <div style="display:flex;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;cursor:pointer;" onclick="openDrawer(${e.talent.id})">
+      <span style="width:90px;color:var(--ink-light);font-family:'Cormorant Garamond',serif;">${e.date}</span>
+      <span class="status-tag ${e.type === '客诉' ? 'status-bad' : e.type === '好评' ? 'status-good' : 'status-default'}" style="margin-right:12px;">${e.type}</span>
+      <span style="flex:1;color:var(--ink-soft);">${e.desc}</span>
+    </div>
+  `).join('');
+}
+
+function refreshNav() {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.view === currentView);
+  });
+}
+
+/* ============== 待跟进列表 ============== */
+async function renderFollowup() {
+  const all = await getAllTalents();
+  const list = all.filter(isNeedFollowup);
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-head">
+      <div class="page-title">待跟进 <small>${list.length} 位</small></div>
+    </div>
+
+    <div style="background:white;border:1px solid var(--line-soft);padding:20px;margin-bottom:18px;">
+      <div style="display:flex;gap:14px;font-size:12px;color:var(--ink-soft);flex-wrap:wrap;">
+        <span>📌 待跟进包括：</span>
+        <span>• 手动标记的人员</span>
+        <span>• 联系未回复超 3 天</span>
+        <span>• 互免承诺未交付</span>
+        <span>• 欠款未结清</span>
+      </div>
+    </div>
+
+    ${list.length === 0 ? `
+      <div style="text-align:center;padding:80px 20px;color:var(--ink-light);">
+        <div style="font-size:42px;margin-bottom:14px;">✓</div>
+        <div style="font-size:14px;letter-spacing:3px;">无待跟进事项 · 一切顺利</div>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>姓名 / 联系方式</th>
+            <th>岗位</th>
+            <th>评级</th>
+            <th>跟进原因</th>
+            <th>最近活动</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            ${list.map(t => {
+              const reasons = [];
+              if ((t.flags || []).includes('⏰ 待跟进')) reasons.push('手动标记');
+              const cr = t.contact_records || [];
+              if (cr.length) {
+                const last = cr[cr.length-1];
+                if (!last.replied && last.date) {
+                  const days = Math.floor((Date.now() - new Date(last.date).getTime())/(86400000));
+                  if (days > 3) reasons.push(`已 ${days} 天未回复`);
+                }
+              }
+              if (t.role_type === 'model' && t.mutual_promise && /未交付|未给|欠/.test(t.mutual_promise)) reasons.push('互免未交付');
+              const unsettled = (t.payment_records || []).filter(p => !p.settled && Number(p.amount) > 0);
+              if (unsettled.length) reasons.push(`欠款 ¥${unsettled.reduce((s,p)=>s+Number(p.amount||0),0)}`);
+              const rating = t.tech_rating || t.quality_rating || t.service_rating || '';
+              return `
+                <tr onclick="openDrawer(${t.id})" style="cursor:pointer;">
+                  <td>
+                    <div class="name-cell">
+                      ${t.selfie_url ? `<img class="avatar" src="${t.selfie_url}">` : `<span class="avatar">${(t.name||'?').slice(0,1)}</span>`}
+                      <div class="name-info">
+                        <span class="name">${t.name}</span>
+                        <span class="phone">${t.phone}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge">${ROLE_NAME[t.role_type]}</span></td>
+                  <td><span class="rating ${rating ? 'rating-'+rating : 'rating-none'}">${rating || '-'}</span></td>
+                  <td>${reasons.map(r => `<span class="status-tag status-warn" style="margin-right:4px;">${r}</span>`).join('')}</td>
+                  <td style="color:var(--ink-light);font-size:12px;">${(t.contact_records||[]).length ? (t.contact_records.slice(-1)[0].date) : '-'}</td>
+                  <td><span style="color:var(--ink-light);">›</span></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+/* ============== 推荐人统计 ============== */
+async function renderReferrers() {
+  const all = await getAllTalents();
+  const map = {};
+  all.forEach(t => {
+    const r = (t.referrer || '').trim();
+    if (!r) return;
+    if (!map[r]) map[r] = { total: 0, hired: 0, names: [] };
+    map[r].total++;
+    if (/已录用|长期签约|长期合作|常用模特|在职|签约|兼职合作/.test(t.status || '')) map[r].hired++;
+    map[r].names.push({ id: t.id, name: t.name, role: t.role_type, status: t.status });
+  });
+
+  const list = Object.entries(map).sort((a,b) => b[1].total - a[1].total);
+
+  document.getElementById('main').innerHTML = `
+    <div class="page-head">
+      <div class="page-title">推荐人统计 <small>看谁帮你拉新最多</small></div>
+    </div>
+
+    <div style="background:white;border:1px solid var(--line-soft);padding:20px;margin-bottom:18px;">
+      <h3 style="font-size:13px;color:var(--rouge);letter-spacing:3px;margin-bottom:10px;">💡 经营建议</h3>
+      <div style="font-size:13px;color:var(--ink-soft);line-height:1.9;">
+        • 推荐 3 人以上转化 1 个，建议给 <b>200 元</b> 推荐奖<br>
+        • 推荐 5 人以上转化 2 个，建议给 <b>500 元</b> 推荐奖 + 优先派单<br>
+        • 推荐人即"民间 HR"，长期合作会带来源源不断的优质人选
+      </div>
+    </div>
+
+    ${list.length === 0 ? `
+      <div style="text-align:center;padding:80px;color:var(--ink-light);">
+        <div style="font-size:14px;letter-spacing:3px;">暂无推荐人记录</div>
+        <div style="font-size:12px;margin-top:8px;">应聘者填表时如果有"推荐人"字段,这里会自动汇总</div>
+      </div>
+    ` : `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>推荐人</th>
+            <th>累计推荐</th>
+            <th>成功转化</th>
+            <th>转化率</th>
+            <th>推荐的人</th>
+            <th>建议</th>
+          </tr></thead>
+          <tbody>
+            ${list.map(([name, info]) => {
+              const rate = info.total ? Math.round(info.hired / info.total * 100) : 0;
+              let suggestion = '';
+              if (info.hired >= 2 && info.total >= 5) suggestion = '<span style="color:var(--rouge);">★ 给予奖励</span>';
+              else if (info.hired >= 1 && info.total >= 3) suggestion = '<span style="color:var(--gold);">考虑奖励</span>';
+              else suggestion = '<span style="color:var(--ink-light);">继续观察</span>';
+              return `
+                <tr>
+                  <td style="font-weight:500;">${name}</td>
+                  <td style="font-family:'Cormorant Garamond',serif;font-size:16px;">${info.total}</td>
+                  <td style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--green);">${info.hired}</td>
+                  <td style="font-family:'Cormorant Garamond',serif;">${rate}%</td>
+                  <td style="font-size:12px;color:var(--ink-soft);">
+                    ${info.names.map(n => `<span style="cursor:pointer;text-decoration:underline;" onclick="openDrawer(${n.id})">${n.name}</span>`).join('、')}
+                  </td>
+                  <td style="font-size:12px;">${suggestion}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+/* ============== 🤖 AI 智能录入 ============== */
+let aiInputMode = 'text'; // 'text' or 'image'
+let aiTextInput = '';
+let aiImageList = []; // [{ url, mediaType, file }]
+let aiParseResults = []; // 解析后的人员数组
+let aiParsing = false;
+
+function renderAIImport() {
+  document.getElementById('main').innerHTML = `
+    <div class="ai-hero">
+      <h2>AI 智能录入</h2>
+      <p>
+        复制微信聊天记录 / 上传聊天截图,AI 自动提取姓名、岗位意向、薪资、档期等关键信息,一键建档。<br>
+        支持多人对话同时解析,自动识别重复手机号叠加更新历史档案,不覆盖原有评价。
+      </p>
+    </div>
+
+    <div class="ai-tabs">
+      <div class="ai-tab ${aiInputMode==='text'?'active':''}" onclick="switchAIMode('text')">📝 粘贴聊天文字</div>
+      <div class="ai-tab ${aiInputMode==='image'?'active':''}" onclick="switchAIMode('image')">📷 上传聊天截图</div>
+      <div class="ai-tab" onclick="showAIHistory()" style="margin-left:auto;color:var(--ink-light);">📜 解析历史</div>
+    </div>
+
+    <div id="ai-input-container">
+      ${aiInputMode === 'text' ? renderAITextMode() : renderAIImageMode()}
+    </div>
+
+    <div id="ai-result-container"></div>
+  `;
+}
+
+function renderAITextMode() {
+  return `
+    <div class="ai-input-area">
+      <div class="ai-tip">
+        💡 建议复制聊天里包含关键信息的整段,例如:对方介绍身份、说期望薪资、可上班时间、技能特长的句子。多人对话也可一次粘贴,AI 会自动拆分。
+      </div>
+      <textarea class="ai-textarea" id="ai-text" placeholder="示例:
+我:你好,看到你的简历,想了解下你的情况
+小雨:姐你好!我叫王雨,23岁,本地人,做妆造2年了,会唐风宋制
+我:期望薪资多少?周末能上班吗?
+小雨:6000-8000吧,周末肯定可以,我也想多接活
+我:住哪边?有忌口或者特殊情况吗?
+小雨:住碑林区,地铁15分钟,没忌口,就是周三晚上要上瑜伽课不能加班..." 
+oninput="aiTextInput=this.value">${aiTextInput}</textarea>
+      <div class="ai-action-bar">
+        <button class="btn btn-ai" onclick="runAIParse()">⚡ AI 智能解析</button>
+        <button class="btn" onclick="aiTextInput='';document.getElementById('ai-text').value='';">清空</button>
+        <span class="hint">解析通常需要 5-15 秒</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderAIImageMode() {
+  return `
+    <div class="ai-input-area">
+      <div class="ai-tip">
+        💡 微信聊天截图、朋友圈截图、简历截图均可上传。建议每张图清晰可读,可一次上传多张连续截图。
+      </div>
+      <div class="ai-image-drop" onclick="document.getElementById('ai-img-input').click()"
+           ondragover="event.preventDefault();this.classList.add('dragover');"
+           ondragleave="this.classList.remove('dragover');"
+           ondrop="event.preventDefault();this.classList.remove('dragover');handleAIImageDrop(event);">
+        <div class="icon">📷</div>
+        <div class="text">点击选择或拖入图片(支持多张)</div>
+      </div>
+      <input type="file" id="ai-img-input" accept="image/*" multiple style="display:none;" onchange="handleAIImageSelect(event)">
+      <div class="ai-image-list" id="ai-img-list">
+        ${aiImageList.map((img, i) => `
+          <div class="pic">
+            <img src="${img.url}">
+            <span class="del" onclick="aiImageList.splice(${i},1);renderAIImport();">×</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="ai-action-bar">
+        <button class="btn btn-ai" onclick="runAIParse()" ${aiImageList.length===0?'disabled style="opacity:0.5"':''}>⚡ AI 智能解析 ${aiImageList.length?`(${aiImageList.length} 张)`:''}</button>
+        <button class="btn" onclick="aiImageList=[];renderAIImport();">清空</button>
+        <span class="hint">每张图建议 ≤ 2MB,清晰可读</span>
+      </div>
+    </div>
+  `;
+}
+
+function switchAIMode(mode) {
+  aiInputMode = mode;
+  aiParseResults = [];
+  renderAIImport();
+}
+
+async function handleAIImageSelect(e) {
+  for (const f of e.target.files) {
+    if (f.size > 4 * 1024 * 1024) {
+      alert(`图片「${f.name}」超过 4MB,会影响解析速度,已跳过`);
+      continue;
+    }
+    const compressed = await compressImage(f);
+    aiImageList.push(compressed);
+  }
+  renderAIImport();
+}
+
+async function handleAIImageDrop(e) {
+  for (const f of e.dataTransfer.files) {
+    if (!f.type.startsWith('image/')) continue;
+    if (f.size > 4 * 1024 * 1024) {
+      alert(`图片「${f.name}」超过 4MB,已跳过`);
+      continue;
+    }
+    const compressed = await compressImage(f);
+    aiImageList.push(compressed);
+  }
+  renderAIImport();
+}
+
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, 1200 / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        // 取出 base64 部分(去掉 data:image/jpeg;base64, 前缀)
+        const base64 = dataUrl.split(',')[1];
+        resolve({ url: dataUrl, base64, mediaType: 'image/jpeg' });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function runAIParse() {
+  if (aiInputMode === 'text' && !aiTextInput.trim()) { alert('请先粘贴聊天文字'); return; }
+  if (aiInputMode === 'image' && !aiImageList.length) { alert('请先上传图片'); return; }
+  if (aiParsing) return;
+
+  aiParsing = true;
+  document.getElementById('ai-result-container').innerHTML = `
+    <div class="ai-loading">
+      <div class="spinner"></div>
+      <div>AI 正在解析,通常需要 5-15 秒...</div>
+      <div style="font-size:11px;color:var(--ink-light);margin-top:8px;">${aiInputMode==='image'?'多张图片会更慢':'文字越长越慢'}</div>
+    </div>
+  `;
+
+  try {
+    const results = await callAIParse();
+    aiParseResults = results;
+    renderAIResults();
+  } catch (e) {
+    console.error('AI 解析失败:', e);
+    document.getElementById('ai-result-container').innerHTML = `
+      <div class="panel" style="background:rgba(160,44,44,0.05);border-left:3px solid var(--rouge);padding:20px;">
+        <h3 style="color:var(--rouge);">⚠ 解析失败</h3>
+        <div style="font-size:13px;color:var(--ink-soft);margin-top:10px;">${e.message || '网络异常或 AI 服务不可用,请稍后重试。'}</div>
+        <div style="font-size:12px;color:var(--ink-light);margin-top:10px;">
+          如果反复失败:① 检查网络;② 减少文字/图片数量;③ 直接使用人工填表(左侧"人才库"中各岗位入口)
+        </div>
+      </div>
+    `;
+  }
+  aiParsing = false;
+}
+
+async function callAIParse() {
+  const systemPrompt = `你是一位汉服店人才库录入助手。你的任务是从用户提供的微信聊天记录或截图中,精准提取每个求职者/兼职人员的信息,并以严格的 JSON 格式输出。
+
+岗位类型(必须精确映射到下列 7 个之一,不要新增):
+- makeup (妆造师)
+- dress (礼服师)
+- photo (摄影师)
+- retouch (修图师)
+- model (模特)
+- anchor (主播)
+- service (客服)
+
+输出格式(严格 JSON 数组,每个人一个对象):
+[
+  {
+    "name": "姓名",
+    "name_conf": "high|medium|low",
+    "gender": "男|女|null",
+    "age": 数字或 null,
+    "phone": "11位手机号或null",
+    "phone_conf": "high|medium|low",
+    "wechat": "微信号或null",
+    "residence": "居住区域,如:雁塔区",
+    "role_type": "makeup|dress|photo|retouch|model|anchor|service|null",
+    "role_conf": "high|medium|low",
+    "job_intention": "全职|兼职|周末|临时|null",
+    "available_shifts": ["早班","中班","晚班","全天"](数组),
+    "expected_salary": "期望薪资原文描述",
+    "experience_years": "新手|1年以内|1-3年|3年以上|null",
+    "skills_tags": ["特长1","特长2"](数组,如:会盘发、会跳舞、有摄影经验),
+    "personality": "活泼外向|慢热适中|内向安静|null",
+    "ai_summary": "用一段话(80-150字)总结此人的核心信息、亮点、需注意的点。包含对方在意的事项、特殊要求、约定事项、禁忌偏好",
+    "raw_quotes": "从原对话里摘出最关键的 1-3 句原话(用「」括起来,用 / 分隔)"
+  }
+]
+
+规则:
+1. 如果识别不准或没说,字段填 null,confidence 填 low
+2. 多人对话要分开多个对象;只有一个人就返回单元素数组
+3. 客户/老板的话不要建档,只为求职者建档
+4. 手机号必须是 11 位数字,否则 null
+5. expected_salary 保留原文描述,如"6000-8000"、"按场算"、"看情况"
+6. ai_summary 一定要写,这是最重要的;包含对方的诉求、性格观察、注意事项
+7. 严格输出 JSON 数组,不要任何额外文字、不要 markdown 代码块
+8. 若无法识别任何人,返回空数组 []`;
+
+  const userContent = [];
+  if (aiInputMode === 'text') {
+    userContent.push({ type: 'text', text: '请解析以下聊天内容,提取所有求职者信息:\n\n' + aiTextInput });
+  } else {
+    userContent.push({ type: 'text', text: '请解析以下聊天截图,提取所有求职者信息。截图按顺序排列:' });
+    aiImageList.forEach(img => {
+      userContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: img.mediaType, data: img.base64 }
+      });
+    });
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }]
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`AI 接口返回 ${response.status}: ${errText.substring(0,200)}`);
+  }
+
+  const data = await response.json();
+  const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+  // 抽出 JSON
+  let jsonStr = text.trim();
+  jsonStr = jsonStr.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
+  const startIdx = jsonStr.indexOf('[');
+  const endIdx = jsonStr.lastIndexOf(']');
+  if (startIdx === -1 || endIdx === -1) throw new Error('AI 返回格式异常,无法提取 JSON');
+  jsonStr = jsonStr.substring(startIdx, endIdx + 1);
+
+  const arr = JSON.parse(jsonStr);
+  if (!Array.isArray(arr)) throw new Error('AI 返回非数组');
+  return arr;
+}
+
+async function renderAIResults() {
+  const container = document.getElementById('ai-result-container');
+  if (!aiParseResults.length) {
+    container.innerHTML = `
+      <div class="panel" style="background:var(--paper);padding:30px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:10px;">🤔</div>
+        <div style="color:var(--ink-soft);">AI 未识别出明确的求职者信息。请检查内容是否包含个人介绍,或换一种方式重试。</div>
+      </div>
+    `;
+    return;
+  }
+
+  // 检查每个人是否已有档案(按手机号)
+  const allTalents = await getAllTalents();
+  for (const r of aiParseResults) {
+    if (r.phone && /^1[3-9]\d{9}$/.test(r.phone)) {
+      const existing = allTalents.find(t => t.phone === r.phone && t.blacklist_mark !== '永久拉黑');
+      r._existing = existing || null;
+    }
+  }
+
+  container.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="font-size:16px;letter-spacing:3px;color:var(--rouge);">解析结果 (${aiParseResults.length} 位)</h3>
+      <div>
+        <button class="btn" onclick="runAIParse()">↻ 重新解析</button>
+        <button class="btn btn-primary" onclick="batchSaveAI()">一键全部录入 →</button>
+      </div>
+    </div>
+
+    ${aiParseResults.map((r, idx) => renderAIResultCard(r, idx)).join('')}
+
+    <div style="margin-top:20px;text-align:center;">
+      <button class="btn btn-primary" onclick="batchSaveAI()" style="padding:10px 32px;letter-spacing:4px;">✓ 一键全部录入到人才库</button>
+    </div>
+  `;
+}
+
+function renderAIResultCard(r, idx) {
+  const existing = r._existing;
+  const role = r.role_type || 'service';
+  const roleName = ROLE_NAME[role] || '未分类';
+
+  const field = (key, label, value, conf, isTextarea) => {
+    const confClass = conf || 'medium';
+    const inputId = `ai-f-${idx}-${key}`;
+    const tag = isTextarea
+      ? `<textarea id="${inputId}" rows="3">${value || ''}</textarea>`
+      : `<input type="text" id="${inputId}" value="${(value || '').toString().replace(/"/g,'&quot;')}">`;
+    return `
+      <div class="ai-field-row ${confClass==='low'?'low-conf':''}">
+        <span class="k">${label}</span>
+        ${tag}
+        <span class="confidence-tag ${confClass}">${confClass==='high'?'高':confClass==='medium'?'中':'低 ⚠'}</span>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="ai-result-card">
+      <div class="ai-result-head">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="name">${r.name || '未识别姓名'}</span>
+          <span class="role">
+            <select id="ai-f-${idx}-role_type" onchange="aiParseResults[${idx}].role_type=this.value;" style="background:transparent;color:white;border:none;font-size:11px;letter-spacing:1px;">
+              ${Object.entries(ROLE_NAME).map(([k,v]) => `<option value="${k}" ${k===role?'selected':''}>${v}</option>`).join('')}
+            </select>
+          </span>
+          ${existing ? `<span class="ai-merge-badge">检测到历史档案,将合并</span>` : ''}
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--ink-soft);cursor:pointer;">
+            <input type="checkbox" id="ai-skip-${idx}" onchange="aiParseResults[${idx}]._skip=this.checked;"> 跳过此人
+          </label>
+        </div>
+      </div>
+
+      <div class="ai-section-title">基础信息</div>
+      <div class="ai-result-body">
+        ${field('name','姓名',r.name,r.name_conf)}
+        ${field('phone','手机',r.phone,r.phone_conf)}
+        ${field('wechat','微信',r.wechat,'medium')}
+        ${field('gender','性别',r.gender,'medium')}
+        ${field('age','年龄',r.age,'medium')}
+        ${field('residence','居住',r.residence,'medium')}
+      </div>
+
+      <div class="ai-section-title">求职意向</div>
+      <div class="ai-result-body">
+        ${field('job_intention','岗位形式',r.job_intention,'medium')}
+        ${field('available_shifts','可上班',Array.isArray(r.available_shifts)?r.available_shifts.join('、'):r.available_shifts,'medium')}
+        ${field('expected_salary','期望薪资',r.expected_salary,'medium')}
+        ${field('experience_years','从业年限',r.experience_years,'medium')}
+        ${field('skills_tags','特长标签',Array.isArray(r.skills_tags)?r.skills_tags.join('、'):r.skills_tags,'medium')}
+        ${field('personality','性格',r.personality,'medium')}
+      </div>
+
+      <div class="ai-section-title">🤖 AI 备注（核心信息总结）</div>
+      <div class="ai-result-body">
+        ${field('ai_summary','AI 备注',r.ai_summary,'high',true)}
+        ${field('raw_quotes','原话摘录',r.raw_quotes,'high',true)}
+      </div>
+
+      ${existing ? `
+        <div class="ai-section-title" style="color:var(--gold);">📋 已有档案信息（不会覆盖）</div>
+        <div class="ai-result-body" style="background:rgba(184,147,90,0.04);">
+          <div style="font-size:12px;color:var(--ink-soft);line-height:1.9;">
+            • 已登记 ${new Date(existing.created_at).toLocaleDateString()}<br>
+            • 岗位:${ROLE_NAME[existing.role_type]} · 状态:${existing.status || '-'}<br>
+            • 评级:${existing.tech_rating || existing.quality_rating || existing.service_rating || '未评'} · 上岗 ${existing.work_count || 0} 次<br>
+            • 已有 AI 备注 ${(existing.ai_history || []).length} 条 · 客诉 ${existing.complaint_count || 0} 次<br>
+            <b style="color:var(--rouge);">✓ 此次解析的内容会作为新备注追加,不覆盖以上信息</b>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+async function batchSaveAI() {
+  const all = await getAllTalents();
+  let createdCount = 0, updatedCount = 0, skipCount = 0;
+
+  for (let idx = 0; idx < aiParseResults.length; idx++) {
+    const r = aiParseResults[idx];
+    if (r._skip) { skipCount++; continue; }
+
+    // 从 input 读最新值（用户可能改过）
+    const read = (k) => {
+      const el = document.getElementById(`ai-f-${idx}-${k}`);
+      return el ? el.value : '';
+    };
+
+    const name = read('name').trim();
+    const phone = read('phone').trim();
+    if (!name) { skipCount++; continue; }
+
+    const aiSummary = read('ai_summary').trim();
+    const rawQuotes = read('raw_quotes').trim();
+    const aiEntry = {
+      date: new Date().toISOString().slice(0,10),
+      time: new Date().toISOString(),
+      mode: aiInputMode,
+      summary: aiSummary,
+      raw_quotes: rawQuotes,
+      raw_input: aiInputMode === 'text' ? aiTextInput.substring(0, 2000) : `[${aiImageList.length} 张图片]`
+    };
+
+    // 检查是否已有档案
+    let existing = null;
+    if (phone && /^1[3-9]\d{9}$/.test(phone)) {
+      existing = all.find(t => t.phone === phone && t.blacklist_mark !== '永久拉黑');
+    }
+
+    if (existing) {
+      // 合并更新:不覆盖原有评价,只追加 AI 备注 + 智能合并新字段
+      existing.ai_history = existing.ai_history || [];
+      existing.ai_history.push(aiEntry);
+      existing.ai_notes = (existing.ai_notes ? existing.ai_notes + '\n\n' : '') +
+        `[${aiEntry.date} AI 更新]\n${aiSummary}` + (rawQuotes ? `\n原话:${rawQuotes}` : '');
+      // 智能合并:空字段才覆盖
+      if (!existing.wechat && read('wechat')) existing.wechat = read('wechat');
+      if (!existing.residence && read('residence')) existing.residence = read('residence');
+      if (!existing.expected_salary && read('expected_salary')) existing.expected_salary = read('expected_salary');
+      if (!existing.age && read('age')) existing.age = read('age');
+      existing.updated_at = new Date().toISOString();
+      await updateTalent(existing);
+      updatedCount++;
+    } else {
+      // 新建
+      const role = read('role_type') || r.role_type || 'service';
+      const newTalent = {
+        role_type: role,
+        name,
+        phone,
+        wechat: read('wechat'),
+        gender: read('gender'),
+        age: read('age'),
+        residence: read('residence'),
+        job_intention: read('job_intention'),
+        available_shifts: read('available_shifts').split(/[、,，]/).map(s=>s.trim()).filter(Boolean),
+        expected_salary: read('expected_salary'),
+        experience_years: read('experience_years'),
+        personality_type: read('personality'),
+        self_recommend: read('skills_tags'),
+        ai_notes: `[${aiEntry.date} AI 录入]\n${aiSummary}` + (rawQuotes ? `\n原话:${rawQuotes}` : ''),
+        ai_history: [aiEntry],
+        status: role === 'service' ? '在职' : role === 'model' ? '待试拍' : role === 'anchor' ? '待试播' : '待复试',
+        blacklist_mark: '正常',
+        work_count: 0,
+        complaint_count: 0,
+        created_at: new Date().toISOString(),
+        ai_created: true
+      };
+      await saveNewTalent(newTalent);
+      createdCount++;
+    }
+  }
+
+  // 清空当前批
+  aiParseResults = [];
+  aiTextInput = '';
+  aiImageList = [];
+
+  toast(`✓ 录入完成 · 新建 ${createdCount} · 更新 ${updatedCount}${skipCount?' · 跳过 '+skipCount:''}`);
+  setTimeout(() => {
+    currentView = 'all';
+    refreshNav();
+    render();
+  }, 1200);
+}
+
+async function saveNewTalent(data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).add(data);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = e => reject(e);
+  });
+}
+
+function editManualNote() {
+  const t = currentTalent;
+  document.getElementById('modal-content').innerHTML = `
+    <h3>${t.manual_notes ? '编辑' : '添加'}人工备注</h3>
+    <p style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;">这部分是你手动写的补充内容,不会被 AI 覆盖。</p>
+    <textarea id="manual-note-input" rows="8" style="width:100%;padding:10px;border:1px solid var(--line);font-family:inherit;font-size:13px;background:var(--bg);">${t.manual_notes || ''}</textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveManualNote()">保存</button>
+    </div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+async function saveManualNote() {
+  const t = currentTalent;
+  t.manual_notes = document.getElementById('manual-note-input').value;
+  await updateTalent(t);
+  closeModal();
+  renderDrawerBody();
+  toast('已保存');
+}
+
+function viewAIHistoryDetail() {
+  const t = currentTalent;
+  const history = t.ai_history || [];
+  document.getElementById('modal-content').innerHTML = `
+    <h3>${t.name} · AI 解析历史 (${history.length} 次)</h3>
+    <div style="max-height:60vh;overflow-y:auto;">
+      ${history.map((h, i) => `
+        <div class="ai-history-item">
+          <div style="display:flex;justify-content:space-between;">
+            <span class="h-date">${h.date}</span>
+            <span style="color:var(--ink-light);font-size:11px;">${h.mode === 'image' ? '📷 截图' : '📝 文字'}</span>
+          </div>
+          <div style="margin-top:8px;color:var(--ink);">${h.summary || '(无总结)'}</div>
+          ${h.raw_quotes ? `<div style="margin-top:6px;color:var(--ink-light);font-style:italic;">原话: ${h.raw_quotes}</div>` : ''}
+          <details style="margin-top:8px;">
+            <summary style="cursor:pointer;color:var(--rouge);font-size:11px;">▸ 查看原始素材</summary>
+            <div class="h-text" style="max-height:200px;overflow-y:auto;">${h.raw_input || '-'}</div>
+          </details>
+        </div>
+      `).join('')}
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div>
+  `;
+  document.getElementById('modal-mask').classList.add('show');
+}
+
+function showAIHistory() {
+  // 列出所有有 AI 历史的档案
+  getAllTalents().then(all => {
+    const list = all.filter(t => t.ai_history && t.ai_history.length).sort((a,b) => {
+      const ad = a.ai_history.slice(-1)[0].time || a.ai_history.slice(-1)[0].date;
+      const bd = b.ai_history.slice(-1)[0].time || b.ai_history.slice(-1)[0].date;
+      return bd.localeCompare(ad);
+    });
+
+    document.getElementById('modal-content').innerHTML = `
+      <h3>📜 AI 解析历史 <small style="font-size:12px;color:var(--ink-light);">共 ${list.length} 位曾被 AI 录入</small></h3>
+      <div style="max-height:60vh;overflow-y:auto;padding:6px 0;">
+        ${list.length === 0 ? '<div class="empty">暂无 AI 解析历史</div>' : list.map(t => `
+          <div class="ai-history-item" onclick="closeModal();openDrawer(${t.id});" style="cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:var(--ink);font-weight:500;">${t.name} <span class="role-badge">${ROLE_NAME[t.role_type]}</span></span>
+              <span class="h-date">共 ${t.ai_history.length} 次</span>
+            </div>
+            <div class="h-text">最近: ${(t.ai_history.slice(-1)[0].summary || '').substring(0, 100)}...</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div>
+    `;
+    document.getElementById('modal-mask').classList.add('show');
+  });
+}
+
+/* ============== 二维码页 ============== */
+function renderQR() {
+  const url = window.location.href.replace('管理后台.html', '人才录入.html');
+  document.getElementById('main').innerHTML = `
+    <div class="page-head">
+      <div class="page-title">招募二维码 <small>打印贴店里 / 招聘启事中使用</small></div>
+    </div>
+    <div class="qr-card">
+      <div style="margin-bottom:18px;font-size:13px;color:var(--ink-soft);letter-spacing:2px;">扫码进入应聘表单</div>
+      <div id="qrcode" style="display:inline-block;padding:14px;background:white;border:1px solid var(--line);"></div>
+      <div style="margin:18px 0;font-size:11px;color:var(--ink-light);word-break:break-all;">${url}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold);font-style:italic;margin-top:10px;">云锦长安 · 招贤纳士</div>
+      <button class="btn btn-primary" style="margin-top:18px;" onclick="window.print()">打印此页</button>
+    </div>
+    <div style="max-width:600px;margin:30px auto;padding:20px;background:white;border:1px solid var(--line);">
+      <h3 style="margin-bottom:14px;letter-spacing:3px;color:var(--rouge);">使用建议</h3>
+      <ol style="padding-left:22px;line-height:2;color:var(--ink-soft);font-size:13px;">
+        <li>把这个二维码打印出来，贴在店里的"招贤纳士"位置</li>
+        <li>发布在小红书、抖音招聘内容时，附上此二维码图片</li>
+        <li>有人想加你微信谈合作时，先发二维码让对方录入档案，再聊细节</li>
+        <li>试妆/试拍当场，让对方扫码填写后再开始</li>
+        <li><b>当系统部署到云端后</b>，扫码即可在任何地方填写；目前本地版需先把文件部署到服务器/小程序</li>
+      </ol>
+    </div>
+  `;
+
+  // 用 Google Charts API 生成二维码（不依赖外部 JS 库）
+  const qrSize = 200;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&margin=0`;
+  document.getElementById('qrcode').innerHTML = `<img src="${qrUrl}" width="${qrSize}" height="${qrSize}" alt="QR Code">`;
+}
+
+/* ============== 设置页 ============== */
+function renderSettings() {
+  document.getElementById('main').innerHTML = `
+    <div class="page-head"><div class="page-title">系统设置</div></div>
+
+    <div style="background:white;padding:24px;border:1px solid var(--line);max-width:700px;margin-bottom:20px;">
+      <h3 style="letter-spacing:3px;color:var(--rouge);margin-bottom:14px;">数据备份与迁移</h3>
+      <p style="color:var(--ink-soft);font-size:13px;line-height:1.9;margin-bottom:14px;">
+        当前数据保存在浏览器本地（IndexedDB）。强烈建议每周导出一次全量备份。<br>
+        若要换设备 / 换电脑，先在原设备导出 JSON，到新设备导入即可。
+      </p>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="backupAll()">导出全量备份（含图片）</button>
+        <label class="btn">
+          导入备份
+          <input type="file" accept=".json" style="display:none;" onchange="restoreAll(event)">
+        </label>
+        <button class="btn" style="color:var(--rouge);" onclick="clearAll()">清空所有数据</button>
+      </div>
+    </div>
+
+    <div style="background:white;padding:24px;border:1px solid var(--line);max-width:700px;margin-bottom:20px;">
+      <h3 style="letter-spacing:3px;color:var(--rouge);margin-bottom:14px;">关于自动评级算法</h3>
+      <p style="color:var(--ink-soft);font-size:13px;line-height:1.9;">
+        系统综合分 = <b>技术分 × 5</b>（占 50%）<br>
+        + <b>上岗次数</b> × 1.25（最多加 25 分）<br>
+        − <b>客诉次数</b> × 5<br>
+        − <b>放鸽子次数</b> × 8（仅摄影师）<br><br>
+        ≥ 85 分 → <span style="color:var(--rouge);font-weight:600;">S 顶级</span><br>
+        ≥ 70 分 → <span style="color:var(--gold);font-weight:600;">A 优秀</span><br>
+        ≥ 50 分 → <span style="color:var(--ink-soft);font-weight:600;">B 合格</span><br>
+        &lt; 50 分 → <span style="color:var(--ink-light);font-weight:600;">C 较差</span>
+      </p>
+    </div>
+
+    <div style="background:white;padding:24px;border:1px solid var(--line);max-width:700px;">
+      <h3 style="letter-spacing:3px;color:var(--rouge);margin-bottom:14px;">添加测试数据</h3>
+      <p style="color:var(--ink-soft);font-size:13px;margin-bottom:14px;">不熟悉系统？点击下面按钮生成 6 条样本数据快速熟悉操作。</p>
+      <button class="btn btn-primary" onclick="addSampleData()">生成 6 条样本</button>
+    </div>
+  `;
+}
+
+async function backupAll() {
+  const all = await getAllTalents();
+  const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `云锦长安人才库_备份_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('备份已下载');
+}
+
+async function restoreAll(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('导入会追加到现有数据中，是否继续？')) return;
+  const text = await file.text();
+  const arr = JSON.parse(text);
+  const db = await openDB();
+  for (const item of arr) {
+    delete item.id;  // 让数据库重新分配
+    await new Promise(resolve => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).add(item);
+      tx.oncomplete = resolve;
+    });
+  }
+  toast(`已导入 ${arr.length} 条`);
+  render();
+}
+
+async function clearAll() {
+  if (!confirm('确认清空所有数据？此操作不可恢复！请先做备份。')) return;
+  if (!confirm('再次确认：真的要清空吗？')) return;
+  const db = await openDB();
+  const tx = db.transaction(STORE, 'readwrite');
+  tx.objectStore(STORE).clear();
+  tx.oncomplete = () => { toast('已清空'); render(); };
+}
+
+async function addSampleData() {
+  const samples = [
+    { role_type: 'makeup', name: '林晚秋', phone: '13800138001', wechat: 'linwq_makeup', residence: '雁塔区',
+      job_intention: '兼职', available_shifts: ['早班','中班'], expected_salary: 'XXX 元/小时',
+      experience_years: '3年以上', makeup_styles: ['唐风','宋制','古风新娘'],
+      tech_rating: 'S', trial_score: 9, work_count: 28, complaint_count: 0,
+      status: '长期签约', blacklist_mark: '正常', re_bookable: '可再约',
+      pros_cons: '手速快、构思好、客人反馈极佳',
+      personality_type: '慢热适中', mbti: 'INFJ',
+      comm_style: ['专业型沟通','耐心讲解'],
+      personality_intro: '工作时极专注，不爱多话，但客人需要建议时能给出非常专业的搭配方案',
+      self_recommend: '6年妆造经验，对唐宋古风非常熟悉，独立设计过多场新娘古风妆面，手速快、出妆稳定，客人复购率高',
+      dispatch_records: [
+        { date: new Date(Date.now() - 86400000 * 14).toISOString().slice(0,10), task: '周六雁塔大片妆造 2 套', customer: '@小雅', fee: 'XXX', note: '客人指定要唐风' },
+        { date: new Date(Date.now() - 86400000 * 7).toISOString().slice(0,10), task: '日常妆造', customer: '小红书订单 #XXXX', fee: 'XXX', note: '' }
+      ],
+      contact_records: [
+        { date: new Date(Date.now() - 86400000 * 3).toISOString().slice(0,10), channel: '微信', purpose: '本周末档期确认', replied: true, note: '回复说周六可、周日不可' }
+      ],
+      payment_records: [
+        { date: new Date(Date.now() - 86400000 * 14).toISOString().slice(0,10), project: '周六雁塔妆造', amount: 280, settled: true, note: '微信转账' },
+        { date: new Date(Date.now() - 86400000 * 7).toISOString().slice(0,10), project: '日常妆造', amount: 150, settled: false, note: '本月底统一结' }
+      ],
+      flags: ['优先派单'],
+      created_at: new Date(Date.now() - 86400000 * 30).toISOString() },
+    { role_type: 'makeup', name: '苏小棠', phone: '13800138002', wechat: 'su_xiaotang', residence: '碑林区',
+      job_intention: '全职', available_shifts: ['全天'], expected_salary: 'XXXX 元/月',
+      experience_years: '1-3年', makeup_styles: ['明制','少女感'],
+      tech_rating: 'A', trial_score: 8, work_count: 12, complaint_count: 1,
+      status: '已录用', blacklist_mark: '正常', re_bookable: '可再约',
+      created_at: new Date(Date.now() - 86400000 * 15).toISOString() },
+    { role_type: 'photo', name: '陈墨白', phone: '13800138003', wechat: 'mobai_photo', residence: '曲江',
+      cooperation_mode: '兼职接单', available_time: ['周末','节假日'],
+      photo_styles: ['古风氛围感','外景'], familiar_scenes: ['大雁塔','大唐不夜城','青龙寺'],
+      own_equipment: '有', camera_body: 'Sony A7M4', lenses: '35mm F1.4、85mm F1.8',
+      has_props: '齐全', props_list: '油纸伞、团扇、灯笼、补光板、反光板',
+      advantages: '擅长大唐不夜城夜景人像，出片快、复购率高',
+      delivery_time: '5 天内', expected_fee: '单次 XXXX 元 / 半天 XXXX',
+      tech_rating: 'S', composition_score: 9, retouch_ability: '好',
+      work_count: 18, complaint_count: 0, no_show_count: 0,
+      status: '长期签约', blacklist_mark: '正常',
+      created_at: new Date(Date.now() - 86400000 * 45).toISOString() },
+    { role_type: 'photo', name: '阿野', phone: '13800138004', wechat: 'aye_photographer',
+      cooperation_mode: '临时应急', available_time: ['工作日'],
+      photo_styles: ['情侣','棚拍'], own_equipment: '无',
+      has_props: '无', advantages: '价格便宜',
+      expected_fee: '看情况',
+      tech_rating: 'C', composition_score: 5, no_show_count: 2,
+      work_count: 3, complaint_count: 2, status: '已终止',
+      blacklist_mark: '永久拉黑', blacklist_reason: '两次放鸽子，态度恶劣',
+      created_at: new Date(Date.now() - 86400000 * 60).toISOString() },
+    { role_type: 'retouch', name: '夜舟', phone: '13800138005', wechat: 'yezhou_retouch',
+      cooperation_mode: '按张结算', available_time: ['全天','仅晚上'],
+      retouch_styles: ['古风精修','调色'], software_skills: ['Photoshop','Lightroom'],
+      delivery_speed: '单张约 XX 分钟', price_standard: '单张 XX 元 / 套餐 XXX',
+      advantages: '调色风格统一，对皮肤质感把控好，能接急单',
+      quality_rating: 'A', trial_score: 8, response_speed: '快',
+      work_count: 45, complaint_count: 0, status: '长期合作', blacklist_mark: '正常',
+      created_at: new Date(Date.now() - 86400000 * 20).toISOString() },
+    { role_type: 'service', name: '安岚', phone: '13800138006', wechat: 'anlan_service',
+      job_intention: '全职', available_shifts: ['早班','中班'],
+      platforms: ['抖音','美团','大众点评','小红书'], expected_salary: 'XXXX-XXXX 元/月',
+      experience: '3年汉服客服经验，熟悉转化话术',
+      service_rating: 'A', trial_score: 8, response_speed: '快', professionalism: '好',
+      conversion_rate: '35%', work_count: 60, complaint_count: 1,
+      status: '在职', blacklist_mark: '正常',
+      personality_type: '活泼外向', mbti: 'ENFP', comm_style: ['主动接待','耐心讲解','能聊天维护氛围'],
+      personality_intro: '性格开朗，喜欢和客人聊天，能很快和客人打成一片',
+      self_recommend: '熟悉抖音/美团/小红书三大平台运营话术，过往店铺转化率稳定在35%以上，懂客人心理，擅长把意向客户转化为成交订单',
+      created_at: new Date(Date.now() - 86400000 * 10).toISOString() },
+    { role_type: 'dress', name: '温棠', phone: '13800138007', wechat: 'wentang_dress', residence: '雁塔区',
+      age: 24, detail_address: '雁塔区小寨XX小区', commute_time: '地铁 25 分钟',
+      entry_date: '随时', expected_salary: 'XXXX-XXXX 元/月 + 提成',
+      job_intention: '全职', available_shifts: ['全天'],
+      weekend_holiday: '可轮班', emergency_cover: '可以',
+      industry_exp: '有', experience_years: '1-3年', previous_store: '汉服馆',
+      dress_skills: ['汉服形制','礼服搭配','尺码适配','穿搭整理','简单盘发'],
+      efficiency_self: '非常麻利', proactive: '很主动', tidiness: '会主动', pressure: '较抗压',
+      strengths: '审美在线，会简单盘发和编发；身高166适合试穿展示',
+      tech_rating: 'A', trial_score: 9, reception_ability: '强', tidy_speed: '快',
+      image_temperament: '良好', aesthetic: '好',
+      work_count: 30, complaint_count: 0, status: '已录用', blacklist_mark: '正常',
+      personality_type: '活泼外向', mbti: 'ESFJ',
+      comm_style: ['主动接待','擅长引导','耐心讲解'],
+      personality_intro: '日常话多但不聒噪，喜欢汉服文化，对客人有耐心，遇到挑选困难户也不会着急',
+      self_recommend: '汉服馆两年经验，能在3分钟内根据客人身形推荐合适形制；自己也是汉服圈爱好者，对唐宋明各形制如数家珍；店内日常陈列整理我可以兜底',
+      created_at: new Date(Date.now() - 86400000 * 8).toISOString() },
+    { role_type: 'dress', name: '柳依依', phone: '13800138008', wechat: 'liuyiyi_dress',
+      age: 22, detail_address: '碑林区', commute_time: '公交 40 分钟',
+      entry_date: '一周后', expected_salary: 'XX 元/小时',
+      job_intention: '长期兼职', available_shifts: ['中班','晚班'],
+      weekend_holiday: '可轮班', emergency_cover: '看情况',
+      industry_exp: '相关行业', experience_years: '1年以内', previous_store: '婚纱影楼',
+      dress_skills: ['礼服搭配','尺码适配','穿搭整理'],
+      efficiency_self: '较快', proactive: '较主动', tidiness: '提醒后会', pressure: '容易紧张',
+      weaknesses: '高峰期容易手忙脚乱，需要主管协调',
+      tech_rating: 'B', trial_score: 7, reception_ability: '中', tidy_speed: '中',
+      image_temperament: '良好', aesthetic: '中',
+      work_count: 8, complaint_count: 0, status: '兼职合作', blacklist_mark: '正常',
+      personality_type: '慢热适中', mbti: 'ISFJ',
+      comm_style: ['耐心讲解','专业型沟通'],
+      personality_intro: '安静细心，对熟悉的同事会聊天，对陌生客人偏专业沟通，不擅长闲聊但能把事情做扎实',
+      self_recommend: '婚纱影楼礼服师转行，对礼服细节比较熟悉，做事细心；希望能稳定兼职，配合度高',
+      created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
+    { role_type: 'model', name: '沈知意', phone: '13800138009', wechat: 'shenzhiyi_model',
+      gender: '女', age: 22, height: 168, weight: 48, measurements: '83/62/87',
+      clothing_size: 'S', skin_tone: '冷白皮',
+      residence: '雁塔区', commute_time: '地铁 20 分钟',
+      available_time: ['周末','工作日晚上'],
+      industry_exp: '有', experience_years: '1-3年',
+      shoot_types: ['室内棚拍','外景','短视频/探店'],
+      pose_ability: '熟练', camera_ability: '很自然',
+      cooperation_form: ['互免+补贴'],
+      price_single: 'XXX 元/套', price_half: 'XXX/半天',
+      sample_authorize: '同意', online_authorize: ['小红书','抖音','朋友圈'],
+      group_shoot: ['单人','闺蜜合拍'],
+      special_marks: ['无'], multi_angle: '不介意',
+      special_skills: '会古典舞、古风仪态熟练',
+      tech_rating: 'S', trial_score: 9, hanfu_fit: '极佳',
+      cooperation_attitude: '很配合', punctuality: '很守时', no_show_count: 0,
+      work_count: 15, complaint_count: 0,
+      mutual_promise: '2024-XX 拍摄唐风,承诺给 5 张精修,已交付;2024-XX 宋制约,承诺 3 张,已交付',
+      portrait_rights: '店铺账号宣传',
+      status: '常用模特', blacklist_mark: '正常', re_bookable: '可再约',
+      pros_cons: '镜头感极好,自带氛围感,客户复购率高',
+      personality_type: '温柔内敛', mbti: 'INFJ',
+      comm_style: ['专业型沟通'],
+      personality_intro: '安静慢热,但镜头前会进入状态,与摄影师配合非常顺畅,不挑戏',
+      self_recommend: '汉服圈两年模特经验,身高168尺码S适配多形制;古典舞功底带来的仪态优势,大唐不夜城外景拍过五十多次,熟悉光线和机位',
+      referrer: '陈墨白',
+      dispatch_records: [
+        { date: new Date(Date.now() - 86400000 * 20).toISOString().slice(0,10), task: '春日唐风外景大片', customer: '@青鸢', fee: 'XXX', note: '芙蓉园,搭档摄影陈墨白,妆造林晚秋' },
+        { date: new Date(Date.now() - 86400000 * 8).toISOString().slice(0,10), task: '宋制端午主题样片', customer: '店铺自用', fee: '互免', note: '4 套换装,5 小时' }
+      ],
+      contact_records: [
+        { date: new Date(Date.now() - 86400000 * 30).toISOString().slice(0,10), channel: '微信', purpose: '初次邀约试拍', replied: true },
+        { date: new Date(Date.now() - 86400000 * 2).toISOString().slice(0,10), channel: '微信', purpose: '5 月底端午活动档期', replied: false, note: '已发消息,等回复' }
+      ],
+      payment_records: [
+        { date: new Date(Date.now() - 86400000 * 20).toISOString().slice(0,10), project: '春日唐风外景', amount: 600, settled: true, note: '现金' },
+        { date: new Date(Date.now() - 86400000 * 8).toISOString().slice(0,10), project: '宋制端午样片', amount: 0, settled: true, note: '互免,承诺 5 张精修' }
+      ],
+      flags: ['⭐ 收藏'],
+      created_at: new Date(Date.now() - 86400000 * 35).toISOString() },
+    { role_type: 'anchor', name: '苏沐橙', phone: '13800138010', wechat: 'sumuc_live',
+      age: 26, height: 165,
+      image_style: ['知性','古典'],
+      residence: '曲江', commute_time: '驾车 15 分钟',
+      job_intention: '兼职驻店',
+      live_time: ['晚场 (18-23)','午场 (12-18)'],
+      fixed_schedule: '可以', emergency_live: '可接受',
+      industry_exp: '有', experience_years: '1-3年',
+      anchor_categories: ['汉服带货','门店引流','套餐售卖'],
+      hanfu_knowledge: '非常熟悉',
+      live_account: '抖音 @沐橙说汉服', fans_count: 'XX 万',
+      best_gmv: '单场约 X 万', exclusive: '可协商',
+      speech_ability: '很流畅', camera_ability: '很自然', sales_ability: '较强',
+      short_video: '愿意',
+      salary_mode: '底薪+提成', expected_salary: '底薪 XXXX + 销售提成 X%',
+      tech_rating: 'A', trial_score: 8,
+      real_speech: '好', real_conversion: '强', emotion_stable: '稳定',
+      avg_sales: 'XXXX 元/场', punctuality: '很守时',
+      work_count: 12, complaint_count: 0,
+      status: '在职', blacklist_mark: '正常',
+      pros_cons: '专业度高,粉丝粘性好,适合做长期主播',
+      personality_type: '活泼外向', mbti: 'ENFJ',
+      comm_style: ['主动接待','擅长引导','能聊天维护氛围'],
+      personality_intro: '亲和力强,语速适中清晰,能在直播间快速带动气氛,情绪稳定不被弹幕影响',
+      self_recommend: '2年汉服主播经验,熟悉抖音算法和直播间话术节奏;能独立讲解唐宋明各形制,带过 X 万 + 单场;愿意配合短视频内容拍摄',
+      referrer: '陈墨白',
+      live_sessions: [
+        { date: new Date(Date.now() - 86400000 * 6).toISOString().slice(0,10), duration: '3 小时 (19-22)', views: 'X 万', sales: 3800, note: '唐风明制双开播,转化主要在 21 点后' },
+        { date: new Date(Date.now() - 86400000 * 4).toISOString().slice(0,10), duration: '2.5 小时', views: 'XXXX', sales: 2400, note: '工作日场,流量一般' },
+        { date: new Date(Date.now() - 86400000 * 2).toISOString().slice(0,10), duration: '3 小时', views: 'X 万', sales: 5600, note: '618 预热场,主推套餐爆款' }
+      ],
+      dispatch_records: [
+        { date: new Date(Date.now() - 86400000 * 2).toISOString().slice(0,10), task: '618 预热专场', customer: '店铺自播', fee: 'XXX', note: '配合短视频 3 条' }
+      ],
+      contact_records: [
+        { date: new Date(Date.now() - 86400000 * 7).toISOString().slice(0,10), channel: '微信', purpose: '618 排班沟通', replied: true }
+      ],
+      payment_records: [
+        { date: new Date(Date.now() - 86400000 * 6).toISOString().slice(0,10), project: '5 月场次费 X 场', amount: 1800, settled: false, note: '月底统一结' }
+      ],
+      flags: ['⭐ 收藏','✨ 优先派单'],
+      created_at: new Date(Date.now() - 86400000 * 8).toISOString() }
+  ];
+
+  const db = await openDB();
+  for (const s of samples) {
+    await new Promise(resolve => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).add(s);
+      tx.oncomplete = resolve;
+    });
+  }
+  toast('已生成 6 条样本数据');
+  render();
+}
+
+/* ============== 启动 ============== */
+render();
+</script>
+</body>
+</html>

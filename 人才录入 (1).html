@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云锦长安 · 人才招募</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a2522;
+    --ink-soft: #5a4f49;
+    --paper: #f5efe6;
+    --paper-warm: #ebe3d4;
+    --rouge: #a02c2c;
+    --rouge-deep: #7a1f1f;
+    --gold: #b8935a;
+    --line: #d9cdb8;
+    --shadow: rgba(42, 37, 34, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 400;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184, 147, 90, 0.06) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(160, 44, 44, 0.04) 0%, transparent 40%);
+    pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 0 22px 80px; }
+
+  /* 顶部 */
+  .hero {
+    padding: 50px 0 30px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 60px; height: 1px; background: var(--rouge);
+  }
+  .seal {
+    display: inline-block;
+    background: var(--rouge);
+    color: var(--paper);
+    font-size: 13px; letter-spacing: 6px;
+    padding: 6px 14px 6px 20px;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  .brand {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 36px; font-weight: 600;
+    letter-spacing: 8px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .brand-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px; letter-spacing: 3px;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+  }
+  .subtitle {
+    font-size: 15px; color: var(--ink-soft);
+    letter-spacing: 2px;
+  }
+
+  /* 欢迎说明 */
+  .welcome {
+    margin: 36px 0 28px;
+    padding: 24px 22px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .welcome::before, .welcome::after {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border: 1.5px solid var(--rouge);
+  }
+  .welcome::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .welcome::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+  .welcome h3 {
+    font-size: 16px; letter-spacing: 4px;
+    margin-bottom: 14px; color: var(--rouge-deep);
+    font-weight: 500;
+  }
+  .welcome ol { list-style: none; counter-reset: step; }
+  .welcome li {
+    counter-increment: step;
+    padding: 6px 0 6px 32px;
+    font-size: 14px; color: var(--ink-soft);
+    position: relative;
+  }
+  .welcome li::before {
+    content: counter(step, cjk-ideographic) '、';
+    position: absolute; left: 0; top: 6px;
+    color: var(--rouge); font-weight: 500;
+  }
+
+  /* 岗位选择 */
+  .role-section { margin-top: 30px; }
+  .section-title {
+    text-align: center;
+    font-size: 14px; letter-spacing: 6px;
+    color: var(--ink-soft);
+    margin: 30px 0 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-title::before, .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--line), transparent);
+  }
+  .roles {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .role-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--line);
+    padding: 18px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .role-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--rouge);
+    transform: scaleY(0); transform-origin: bottom;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 0;
+  }
+  .role-card.active::before { transform: scaleY(1); }
+  .role-card.active { color: var(--paper); border-color: var(--rouge); }
+  .role-card.active .r-icon { color: var(--paper); }
+  .role-card.active .r-en { color: rgba(245, 239, 230, 0.7); }
+  .r-icon {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px; font-weight: 500;
+    color: var(--rouge); letter-spacing: 3px;
+    position: relative; z-index: 1;
+    transition: color 0.35s;
+  }
+  .r-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10px; letter-spacing: 1.5px;
+    color: var(--ink-soft); margin-top: 4px;
+    position: relative; z-index: 1;
+    transition: color 0.35s;
+  }
+
+  /* 表单 */
+  .form {
+    margin-top: 36px;
+    display: none;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .form.show { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .field { margin-bottom: 22px; }
+  .label {
+    display: flex; align-items: baseline;
+    font-size: 13px; letter-spacing: 2px;
+    color: var(--ink); margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .label .req { color: var(--rouge); margin-left: 4px; }
+  .label .hint {
+    font-size: 11px; color: var(--ink-soft);
+    font-weight: 400; margin-left: auto;
+    letter-spacing: 1px;
+  }
+  input[type=text], input[type=tel], input[type=number], textarea, select {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    transition: all 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--rouge);
+    background: rgba(255,255,255,0.95);
+  }
+  select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%235a4f49' d='M2 4l4 4 4-4z'/></svg>");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  /* 单选/多选标签 */
+  .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    padding: 7px 14px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; user-select: none;
+    transition: all 0.2s;
+  }
+  .tag.active {
+    background: var(--rouge); color: var(--paper);
+    border-color: var(--rouge);
+  }
+
+  /* 图片上传 */
+  .upload-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .upload-cell {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.6);
+    border: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .upload-cell:hover { border-color: var(--rouge); }
+  .upload-cell.has-img { border-style: solid; }
+  .upload-cell img { width: 100%; height: 100%; object-fit: cover; }
+  .upload-cell .plus {
+    font-size: 28px; color: var(--ink-soft); font-weight: 300;
+  }
+  .upload-cell .del {
+    position: absolute; top: 4px; right: 4px;
+    width: 22px; height: 22px;
+    background: rgba(42,37,34,0.8); color: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px;
+    border-radius: 50%;
+  }
+  .upload-cell video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .upload-cell .video-mark {
+    position: absolute; top: 4px; left: 4px;
+    background: rgba(160,44,44,0.9); color: white;
+    font-size: 10px; padding: 2px 6px; letter-spacing: 1px;
+  }
+  .upload-cell .video-size {
+    position: absolute; bottom: 4px; left: 4px;
+    background: rgba(0,0,0,0.6); color: white;
+    font-size: 10px; padding: 2px 6px;
+  }
+  .upload-section-hint {
+    font-size: 11px; color: var(--ink-light); margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .selfie-cell {
+    width: 110px; height: 110px;
+    background: rgba(255,255,255,0.6);
+    border: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; overflow: hidden; position: relative;
+    margin: 0 auto;
+  }
+  .selfie-cell img { width: 100%; height: 100%; object-fit: cover; }
+  .selfie-cell.has-img { border-style: solid; border-color: var(--rouge); }
+
+  /* 提交 */
+  .submit-wrap { margin-top: 40px; }
+  .submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: inherit;
+    font-size: 15px; letter-spacing: 8px; padding-left: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+  }
+  .submit:hover { background: var(--rouge-deep); }
+  .submit:active { transform: translateY(1px); }
+  .privacy {
+    text-align: center;
+    font-size: 12px; color: var(--ink-soft);
+    margin-top: 14px; letter-spacing: 1px;
+  }
+
+  /* 价格组件 */
+  .price-row { display: grid; grid-template-columns: 1fr 90px; gap: 8px; }
+
+  /* 成功页 */
+  .success {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .success.show { display: block; animation: fadeUp 0.5s ease; }
+  .success-seal {
+    width: 90px; height: 90px;
+    background: var(--rouge);
+    color: var(--paper);
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 500;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(160,44,44,0.25);
+  }
+  .success h2 {
+    font-size: 22px; letter-spacing: 4px; margin-bottom: 12px;
+  }
+  .success p {
+    color: var(--ink-soft); font-size: 14px; line-height: 1.9;
+  }
+  .footer {
+    text-align: center; margin-top: 60px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px; color: var(--ink-soft);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- 主页面 -->
+  <div id="main-page">
+    <div class="hero">
+      <div class="seal">招 募</div>
+      <h1 class="brand">云锦长安</h1>
+      <div class="brand-en">YUN JIN CHANG AN · since 2024</div>
+      <div class="subtitle">人才档案登记处</div>
+    </div>
+
+    <div class="welcome">
+      <h3>致 应 聘 者</h3>
+      <ol>
+        <li>请选择您所应聘的岗位</li>
+        <li>如实填写基础信息与作品集</li>
+        <li>上传清晰自拍便于识别</li>
+        <li>提交后我们将于三日内回复</li>
+      </ol>
+    </div>
+
+    <div class="role-section">
+      <div class="section-title">应 聘 岗 位</div>
+      <div class="roles">
+        <div class="role-card" data-role="makeup"><div class="r-icon">妆造师</div><div class="r-en">Makeup Artist</div></div>
+        <div class="role-card" data-role="dress"><div class="r-icon">礼服师</div><div class="r-en">Dress Stylist</div></div>
+        <div class="role-card" data-role="photo"><div class="r-icon">摄影师</div><div class="r-en">Photographer</div></div>
+        <div class="role-card" data-role="retouch"><div class="r-icon">修图师</div><div class="r-en">Retoucher</div></div>
+        <div class="role-card" data-role="model"><div class="r-icon">模 特</div><div class="r-en">Model</div></div>
+        <div class="role-card" data-role="anchor"><div class="r-icon">主 播</div><div class="r-en">Live Streamer</div></div>
+        <div class="role-card" data-role="service" style="grid-column:1/-1;"><div class="r-icon">客 服</div><div class="r-en">Customer Service</div></div>
+      </div>
+    </div>
+
+    <!-- 表单 -->
+    <form class="form" id="talent-form" onsubmit="return false;">
+
+      <!-- 通用字段 -->
+      <div class="section-title">基 础 信 息</div>
+
+      <div class="field" style="text-align:center;">
+        <div class="label" style="justify-content:center;">自 拍 照<span class="req">*</span></div>
+        <div class="selfie-cell" id="selfie-cell">
+          <span class="plus">+</span>
+          <input type="file" accept="image/*" id="selfie-input" style="display:none;">
+        </div>
+        <div class="hint" style="margin-top:8px; font-size:11px; color:var(--ink-soft);">用作识别，免冠正面照</div>
+      </div>
+
+      <div class="field">
+        <label class="label">姓 名<span class="req">*</span></label>
+        <input type="text" name="name" required placeholder="请输入真实姓名">
+      </div>
+
+      <div class="field">
+        <label class="label">手 机<span class="req">*</span></label>
+        <input type="tel" name="phone" required maxlength="11" placeholder="11位手机号">
+      </div>
+
+      <div class="field">
+        <label class="label">微 信 号<span class="req">*</span></label>
+        <input type="text" name="wechat" required placeholder="微信号或微信手机号">
+      </div>
+
+      <div class="field">
+        <label class="label">居 住 区 域</label>
+        <input type="text" name="residence" placeholder="如：雁塔区 / 曲江新区">
+      </div>
+
+      <div class="field">
+        <label class="label">推 荐 人 <span class="hint">选填，知道是谁介绍来的</span></label>
+        <input type="text" name="referrer" placeholder="如无可不填">
+      </div>
+
+      <!-- ========== 妆造师专属 ========== -->
+      <div class="role-fields" data-fields="makeup" style="display:none;">
+        <div class="section-title">专 业 信 息</div>
+
+        <div class="field">
+          <label class="label">年 龄</label>
+          <input type="number" name="age" placeholder="数字">
+        </div>
+
+        <div class="field">
+          <label class="label">意 向 岗 位<span class="req">*</span></label>
+          <div class="tag-group" data-name="job_intention" data-mode="single">
+            <span class="tag">全职</span><span class="tag">兼职</span>
+            <span class="tag">周末</span><span class="tag">临时</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 上 班 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_shifts" data-mode="multi">
+            <span class="tag">早班</span><span class="tag">中班</span>
+            <span class="tag">晚班</span><span class="tag">全天</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">期 望 薪 资 / 时 薪<span class="req">*</span></label>
+          <input type="text" name="expected_salary" placeholder="如：XXXX-XXXX 元/月 / XX 元/小时 / 按场结算 XXX">
+        </div>
+
+        <div class="field">
+          <label class="label">从 业 年 限</label>
+          <div class="tag-group" data-name="experience_years" data-mode="single">
+            <span class="tag">新手</span><span class="tag">1年以内</span>
+            <span class="tag">1-3年</span><span class="tag">3年以上</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">擅 长 风 格 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="makeup_styles" data-mode="multi">
+            <span class="tag">唐风</span><span class="tag">宋制</span><span class="tag">明制</span>
+            <span class="tag">清冷风</span><span class="tag">少女感</span><span class="tag">古风新娘</span>
+            <span class="tag">男妆</span><span class="tag">现代妆</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 摄影师专属 ========== -->
+      <div class="role-fields" data-fields="photo" style="display:none;">
+        <div class="section-title">专 业 信 息</div>
+
+        <div class="field">
+          <label class="label">合 作 模 式<span class="req">*</span></label>
+          <div class="tag-group" data-name="cooperation_mode" data-mode="single">
+            <span class="tag">全职驻店</span><span class="tag">兼职接单</span><span class="tag">临时应急</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 接 单 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_time" data-mode="multi">
+            <span class="tag">工作日</span><span class="tag">周末</span><span class="tag">节假日</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">擅 长 风 格 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="photo_styles" data-mode="multi">
+            <span class="tag">古风氛围感</span><span class="tag">情侣</span><span class="tag">闺蜜</span>
+            <span class="tag">单人</span><span class="tag">棚拍</span><span class="tag">外景</span>
+            <span class="tag">夜景</span><span class="tag">写真大片</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">熟 悉 外 景 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="familiar_scenes" data-mode="multi">
+            <span class="tag">大雁塔</span><span class="tag">大唐不夜城</span>
+            <span class="tag">青龙寺</span><span class="tag">芙蓉园</span>
+            <span class="tag">城墙</span><span class="tag">其他</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">自 备 设 备</label>
+          <div class="tag-group" data-name="own_equipment" data-mode="single">
+            <span class="tag">有</span><span class="tag">无</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">机 身 型 号 <span class="hint">如有自备设备</span></label>
+          <input type="text" name="camera_body" placeholder="如：Sony A7M4 / Canon R6 / Nikon Z6 等">
+        </div>
+
+        <div class="field">
+          <label class="label">常 用 镜 头 <span class="hint">可填多支，逗号分隔</span></label>
+          <input type="text" name="lenses" placeholder="如：35mm F1.4、85mm F1.8、24-70mm F2.8">
+        </div>
+
+        <div class="field">
+          <label class="label">是 否 有 整 套 道 具</label>
+          <div class="tag-group" data-name="has_props" data-mode="single">
+            <span class="tag">齐全</span><span class="tag">部分</span><span class="tag">无</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">道 具 清 单 <span class="hint">选填，简要列举</span></label>
+          <input type="text" name="props_list" placeholder="如：油纸伞、团扇、灯笼、折扇、头饰配饰、补光板">
+        </div>
+
+        <div class="field">
+          <label class="label">个 人 优 势 <span class="hint">一句话突出卖点</span></label>
+          <textarea name="advantages" placeholder="如：擅长大唐不夜城夜景人像，出片快、客人复购率高"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">出 片 时 效 承 诺</label>
+          <input type="text" name="delivery_time" placeholder="如：拍摄后 X 天内交付">
+        </div>
+
+        <div class="field">
+          <label class="label">期 望 报 价<span class="req">*</span></label>
+          <input type="text" name="expected_fee" placeholder="如：单次 XXX 元 / 半天 XXX / 四六分成 / 按张 XX">
+        </div>
+      </div>
+
+      <!-- ========== 修图师专属 ========== -->
+      <div class="role-fields" data-fields="retouch" style="display:none;">
+        <div class="section-title">专 业 信 息</div>
+
+        <div class="field">
+          <label class="label">合 作 模 式<span class="req">*</span></label>
+          <div class="tag-group" data-name="cooperation_mode" data-mode="single">
+            <span class="tag">全职</span><span class="tag">兼职</span><span class="tag">按张结算</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 接 单 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_time" data-mode="multi">
+            <span class="tag">全天</span><span class="tag">仅晚上</span><span class="tag">仅周末</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">擅 长 风 格 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="retouch_styles" data-mode="multi">
+            <span class="tag">古风精修</span><span class="tag">人像磨皮</span>
+            <span class="tag">调色</span><span class="tag">合成</span><span class="tag">排版</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">软 件 技 能 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="software_skills" data-mode="multi">
+            <span class="tag">Photoshop</span><span class="tag">Lightroom</span>
+            <span class="tag">Capture One</span><span class="tag">醒图</span><span class="tag">其他</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">出 片 速 度</label>
+          <input type="text" name="delivery_speed" placeholder="如：单张约 XX 分钟 / 每天可出 XX 张">
+        </div>
+
+        <div class="field">
+          <label class="label">个 人 优 势 <span class="hint">一句话突出卖点</span></label>
+          <textarea name="advantages" placeholder="如：擅长古风调色，对皮肤质感处理细腻，能接急单"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">报 价 标 准<span class="req">*</span></label>
+          <input type="text" name="price_standard" placeholder="如：单张 XX 元 / 套餐（10 张）XXX / 月结 XXXX">
+        </div>
+      </div>
+
+      <!-- ========== 礼服师专属 ========== -->
+      <div class="role-fields" data-fields="dress" style="display:none;">
+        <div class="section-title">基 础 补 充</div>
+
+        <div class="field">
+          <label class="label">年 龄</label>
+          <input type="number" name="age" placeholder="数字">
+        </div>
+
+        <div class="field">
+          <label class="label">详 细 居 住 地 址</label>
+          <input type="text" name="detail_address" placeholder="如：碑林区南大街XX小区">
+        </div>
+
+        <div class="field">
+          <label class="label">到 店 通 勤 时 长</label>
+          <input type="text" name="commute_time" placeholder="如：地铁 30 分钟 / 步行 15 分钟">
+        </div>
+
+        <div class="field">
+          <label class="label">可 入 职 时 间</label>
+          <input type="text" name="entry_date" placeholder="如：随时 / X 月 X 日后">
+        </div>
+
+        <div class="field">
+          <label class="label">期 望 薪 资<span class="req">*</span></label>
+          <input type="text" name="expected_salary" placeholder="如：XXXX-XXXX 元/月 / 底薪 XXXX + 提成 / XX 元/小时">
+        </div>
+
+        <div class="section-title">任 职 模 式</div>
+
+        <div class="field">
+          <label class="label">岗 位 意 向<span class="req">*</span></label>
+          <div class="tag-group" data-name="job_intention" data-mode="single">
+            <span class="tag">全职</span><span class="tag">长期兼职</span>
+            <span class="tag">短期临时</span><span class="tag">均可</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 上 班 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_shifts" data-mode="multi">
+            <span class="tag">早班</span><span class="tag">中班</span>
+            <span class="tag">晚班</span><span class="tag">全天</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">周 末 / 节 假 日</label>
+          <div class="tag-group" data-name="weekend_holiday" data-mode="single">
+            <span class="tag">可轮班</span><span class="tag">仅周末</span><span class="tag">仅节假日</span><span class="tag">均不可</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">能 否 临 时 顶 班</label>
+          <div class="tag-group" data-name="emergency_cover" data-mode="single">
+            <span class="tag">可以</span><span class="tag">看情况</span><span class="tag">不可以</span>
+          </div>
+        </div>
+
+        <div class="section-title">从 业 经 验</div>
+
+        <div class="field">
+          <label class="label">汉 服 / 礼 服 / 影 楼 经 验<span class="req">*</span></label>
+          <div class="tag-group" data-name="industry_exp" data-mode="single">
+            <span class="tag">有</span><span class="tag">无</span><span class="tag">相关行业</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">从 业 年 限</label>
+          <div class="tag-group" data-name="experience_years" data-mode="single">
+            <span class="tag">新手</span><span class="tag">1年以内</span>
+            <span class="tag">1-3年</span><span class="tag">3年以上</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">之 前 工 作 门 店 类 型</label>
+          <input type="text" name="previous_store" placeholder="如：汉服馆 / 婚纱影楼 / 古装写真馆等">
+        </div>
+
+        <div class="field">
+          <label class="label">熟 悉 内 容 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="dress_skills" data-mode="multi">
+            <span class="tag">汉服形制</span><span class="tag">礼服搭配</span>
+            <span class="tag">尺码适配</span><span class="tag">穿搭整理</span>
+            <span class="tag">配饰搭配</span><span class="tag">简单盘发</span>
+            <span class="tag">简单化妆</span>
+          </div>
+        </div>
+
+        <div class="section-title">工 作 素 养</div>
+
+        <div class="field">
+          <label class="label">手 脚 麻 利 度 <span class="hint">自评</span></label>
+          <div class="tag-group" data-name="efficiency_self" data-mode="single">
+            <span class="tag">非常麻利</span><span class="tag">较快</span><span class="tag">中等</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">是 否 眼 里 有 活</label>
+          <div class="tag-group" data-name="proactive" data-mode="single">
+            <span class="tag">很主动</span><span class="tag">较主动</span><span class="tag">需要安排</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">主 动 维 护 店 内 整 洁</label>
+          <div class="tag-group" data-name="tidiness" data-mode="single">
+            <span class="tag">会主动</span><span class="tag">提醒后会</span><span class="tag">不太注意</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">高 峰 期 抗 压 能 力</label>
+          <div class="tag-group" data-name="pressure" data-mode="single">
+            <span class="tag">非常抗压</span><span class="tag">较抗压</span><span class="tag">容易紧张</span>
+          </div>
+        </div>
+
+        <div class="section-title">附 加 备 注</div>
+
+        <div class="field">
+          <label class="label">个 人 特 长 <span class="hint">选填</span></label>
+          <textarea name="strengths" placeholder="如：审美在线、会简单盘发、英语可日常交流等"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">自 身 短 板 <span class="hint">选填</span></label>
+          <textarea name="weaknesses" placeholder="如：不擅长接待陌生客人、不能长时间站立等"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">其 他 要 求 <span class="hint">选填</span></label>
+          <textarea name="other_requirements" placeholder="如：需要每周三休息接孩子、不能出差等"></textarea>
+        </div>
+      </div>
+
+      <!-- ========== 模特专属 ========== -->
+      <div class="role-fields" data-fields="model" style="display:none;">
+        <div class="section-title">身 体 数 据</div>
+
+        <div class="field">
+          <label class="label">性 别<span class="req">*</span></label>
+          <div class="tag-group" data-name="gender" data-mode="single">
+            <span class="tag">女</span><span class="tag">男</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">年 龄<span class="req">*</span></label>
+          <input type="number" name="age" placeholder="数字">
+        </div>
+
+        <div class="field">
+          <label class="label">身 高 (cm)<span class="req">*</span></label>
+          <input type="number" name="height" placeholder="如：165">
+        </div>
+
+        <div class="field">
+          <label class="label">体 重 (kg)</label>
+          <input type="number" name="weight" placeholder="选填，便于尺码匹配">
+        </div>
+
+        <div class="field">
+          <label class="label">三 围 <span class="hint">选填，cm，胸/腰/臀</span></label>
+          <input type="text" name="measurements" placeholder="如：86 / 64 / 90，可不填">
+        </div>
+
+        <div class="field">
+          <label class="label">穿 衣 尺 码 <span class="hint">汉服关键</span></label>
+          <div class="tag-group" data-name="clothing_size" data-mode="single">
+            <span class="tag">XS</span><span class="tag">S</span>
+            <span class="tag">M</span><span class="tag">L</span>
+            <span class="tag">XL</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">肤 色 <span class="hint">影响汉服色系匹配</span></label>
+          <div class="tag-group" data-name="skin_tone" data-mode="single">
+            <span class="tag">冷白皮</span><span class="tag">暖白皮</span>
+            <span class="tag">自然色</span><span class="tag">小麦色</span>
+            <span class="tag">偏黑</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">通 勤 距 离</label>
+          <input type="text" name="commute_time" placeholder="如：地铁 X 站 / X 公里">
+        </div>
+
+        <div class="field">
+          <label class="label">可 接 单 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_time" data-mode="multi">
+            <span class="tag">工作日白天</span><span class="tag">工作日晚上</span>
+            <span class="tag">周末</span><span class="tag">节假日</span>
+          </div>
+        </div>
+
+        <div class="section-title">从 业 经 验</div>
+
+        <div class="field">
+          <label class="label">汉 服 / 古 风 拍 摄 经 验<span class="req">*</span></label>
+          <div class="tag-group" data-name="industry_exp" data-mode="single">
+            <span class="tag">有</span><span class="tag">无</span><span class="tag">少量</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">从 业 时 长</label>
+          <div class="tag-group" data-name="experience_years" data-mode="single">
+            <span class="tag">新手</span><span class="tag">1年以内</span>
+            <span class="tag">1-3年</span><span class="tag">3年以上</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 接 拍 摄 类 型 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="shoot_types" data-mode="multi">
+            <span class="tag">室内棚拍</span><span class="tag">外景</span>
+            <span class="tag">短视频/探店</span><span class="tag">服装样片</span>
+            <span class="tag">商拍</span><span class="tag">街拍</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">古 风 仪 态 能 力 <span class="hint">自评</span></label>
+          <div class="tag-group" data-name="pose_ability" data-mode="single">
+            <span class="tag">熟练</span><span class="tag">较好</span>
+            <span class="tag">一般</span><span class="tag">需引导</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">镜 头 表 现 力 <span class="hint">自评</span></label>
+          <div class="tag-group" data-name="camera_ability" data-mode="single">
+            <span class="tag">很自然</span><span class="tag">较自然</span>
+            <span class="tag">需引导</span>
+          </div>
+        </div>
+
+        <div class="section-title">合 作 模 式</div>
+
+        <div class="field">
+          <label class="label">合 作 形 式<span class="req">*</span></label>
+          <div class="tag-group" data-name="cooperation_form" data-mode="multi">
+            <span class="tag">纯互免</span><span class="tag">有偿付费</span>
+            <span class="tag">互免+补贴</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">单 套 报 价</label>
+          <input type="text" name="price_single" placeholder="如：单套 XXX 元">
+        </div>
+
+        <div class="field">
+          <label class="label">半 天 报 价</label>
+          <input type="text" name="price_half" placeholder="如：半天 XXX 元">
+        </div>
+
+        <div class="field">
+          <label class="label">全 天 / 商 拍 报 价</label>
+          <input type="text" name="price_full" placeholder="如：全天 XXXX 元 / 商拍 XXXX">
+        </div>
+
+        <div class="field">
+          <label class="label">店 铺 留 存 样 片<span class="req">*</span> <span class="hint">能否给店里用作宣传</span></label>
+          <div class="tag-group" data-name="sample_authorize" data-mode="single">
+            <span class="tag">同意</span><span class="tag">协商</span><span class="tag">不同意</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">线 上 宣 传 授 权 <span class="hint">小红书 / 抖音 / 朋友圈</span></label>
+          <div class="tag-group" data-name="online_authorize" data-mode="multi">
+            <span class="tag">小红书</span><span class="tag">抖音</span>
+            <span class="tag">朋友圈</span><span class="tag">微信公众号</span>
+            <span class="tag">不授权</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 合 拍 类 型 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="group_shoot" data-mode="multi">
+            <span class="tag">单人</span><span class="tag">闺蜜合拍</span>
+            <span class="tag">情侣合拍</span><span class="tag">亲子合拍</span>
+            <span class="tag">多人组拍</span>
+          </div>
+        </div>
+
+        <div class="section-title">附 加 条 件</div>
+
+        <div class="field">
+          <label class="label">特 殊 标 识 <span class="hint">如有请如实填</span></label>
+          <div class="tag-group" data-name="special_marks" data-mode="multi">
+            <span class="tag">无</span><span class="tag">染发</span>
+            <span class="tag">纹身可遮挡</span><span class="tag">纹身不可遮挡</span>
+            <span class="tag">穿孔</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">是 否 介 意 多 角 度 拍 摄</label>
+          <div class="tag-group" data-name="multi_angle" data-mode="single">
+            <span class="tag">不介意</span><span class="tag">看情况</span><span class="tag">介意</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">个 人 特 长 <span class="hint">选填，加分项</span></label>
+          <input type="text" name="special_skills" placeholder="如：会跳舞、古典舞、器乐、武术等">
+        </div>
+
+        <div class="section-title">资 料 上 传</div>
+
+        <div class="field">
+          <label class="label">模 卡 / 模 特 卡 <span class="hint">最多 6 张</span></label>
+          <div class="upload-section-hint">含身高/体重/三围信息的形象卡，便于派单时一眼匹配</div>
+          <div class="upload-grid" id="modelcard-grid"></div>
+          <input type="file" accept="image/*" id="modelcard-input" multiple style="display:none;">
+        </div>
+
+        <div class="field">
+          <label class="label">素 颜 / 半 身 照 <span class="hint">最多 6 张</span></label>
+          <div class="upload-section-hint">真实素颜或淡妆，便于评估底子；至少提供 1 张正面</div>
+          <div class="upload-grid" id="bareface-grid"></div>
+          <input type="file" accept="image/*" id="bareface-input" multiple style="display:none;">
+        </div>
+
+        <div class="field">
+          <label class="label">生 活 / 日 常 照 <span class="hint">最多 6 张，选填</span></label>
+          <div class="upload-section-hint">日常穿搭、生活状态，便于看气质</div>
+          <div class="upload-grid" id="daily-grid"></div>
+          <input type="file" accept="image/*" id="daily-input" multiple style="display:none;">
+        </div>
+      </div>
+
+      <!-- ========== 主播专属 ========== -->
+      <div class="role-fields" data-fields="anchor" style="display:none;">
+        <div class="section-title">基 础 补 充</div>
+
+        <div class="field">
+          <label class="label">年 龄<span class="req">*</span></label>
+          <input type="number" name="age" placeholder="数字">
+        </div>
+
+        <div class="field">
+          <label class="label">身 高 (cm)</label>
+          <input type="number" name="height" placeholder="如：165">
+        </div>
+
+        <div class="field">
+          <label class="label">形 象 气 质 <span class="hint">自评</span></label>
+          <div class="tag-group" data-name="image_style" data-mode="multi">
+            <span class="tag">甜美</span><span class="tag">知性</span>
+            <span class="tag">古典</span><span class="tag">清冷</span>
+            <span class="tag">活泼</span><span class="tag">温婉</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">通 勤 时 长</label>
+          <input type="text" name="commute_time" placeholder="如：地铁 30 分钟">
+        </div>
+
+        <div class="section-title">直 播 模 式</div>
+
+        <div class="field">
+          <label class="label">用 工 形 式<span class="req">*</span></label>
+          <div class="tag-group" data-name="job_intention" data-mode="single">
+            <span class="tag">全职主播</span><span class="tag">兼职驻店</span>
+            <span class="tag">线上居家</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 直 播 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="live_time" data-mode="multi">
+            <span class="tag">早场 (8-12)</span><span class="tag">午场 (12-18)</span>
+            <span class="tag">晚场 (18-23)</span><span class="tag">夜场 (23-2)</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">能 否 固 定 直 播 时 段</label>
+          <div class="tag-group" data-name="fixed_schedule" data-mode="single">
+            <span class="tag">可以</span><span class="tag">视情况</span><span class="tag">不固定</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">节 假 日 / 临 时 加 播</label>
+          <div class="tag-group" data-name="emergency_live" data-mode="single">
+            <span class="tag">可接受</span><span class="tag">看情况</span><span class="tag">不接受</span>
+          </div>
+        </div>
+
+        <div class="section-title">从 业 经 验</div>
+
+        <div class="field">
+          <label class="label">直 播 经 验<span class="req">*</span></label>
+          <div class="tag-group" data-name="industry_exp" data-mode="single">
+            <span class="tag">有</span><span class="tag">无</span><span class="tag">少量</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">从 业 时 长</label>
+          <div class="tag-group" data-name="experience_years" data-mode="single">
+            <span class="tag">新手</span><span class="tag">1年以内</span>
+            <span class="tag">1-3年</span><span class="tag">3年以上</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">擅 长 赛 道 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="anchor_categories" data-mode="multi">
+            <span class="tag">汉服带货</span><span class="tag">门店引流</span>
+            <span class="tag">套餐售卖</span><span class="tag">景区直播</span>
+            <span class="tag">文旅探店</span><span class="tag">服装直播</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">熟 悉 汉 服 形 制<span class="req">*</span></label>
+          <div class="tag-group" data-name="hanfu_knowledge" data-mode="single">
+            <span class="tag">非常熟悉</span><span class="tag">基本了解</span>
+            <span class="tag">仅看款式</span><span class="tag">不了解</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">个 人 直 播 账 号 <span class="hint">如有</span></label>
+          <input type="text" name="live_account" placeholder="如：抖音 @云锦XX / 视频号XXX">
+        </div>
+
+        <div class="field">
+          <label class="label">账 号 粉 丝 量</label>
+          <input type="text" name="fans_count" placeholder="如：XXXX / XX 万">
+        </div>
+
+        <div class="field">
+          <label class="label">历 史 最 高 单 场 GMV <span class="hint">选填</span></label>
+          <input type="text" name="best_gmv" placeholder="如：XXXX 元 / X 万">
+        </div>
+
+        <div class="field">
+          <label class="label">是 否 接 受 独 家 合 作<span class="req">*</span> <span class="hint">同一时期不为其他汉服店带货</span></label>
+          <div class="tag-group" data-name="exclusive" data-mode="single">
+            <span class="tag">可独家</span><span class="tag">非独家</span><span class="tag">可协商</span>
+          </div>
+        </div>
+
+        <div class="section-title">能 力 自 评</div>
+
+        <div class="field">
+          <label class="label">口 才 表 达</label>
+          <div class="tag-group" data-name="speech_ability" data-mode="single">
+            <span class="tag">很流畅</span><span class="tag">较流畅</span>
+            <span class="tag">一般</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">镜 头 感</label>
+          <div class="tag-group" data-name="camera_ability" data-mode="single">
+            <span class="tag">很自然</span><span class="tag">较自然</span>
+            <span class="tag">需练习</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">销 售 转 化 能 力 <span class="hint">自评</span></label>
+          <div class="tag-group" data-name="sales_ability" data-mode="single">
+            <span class="tag">很强</span><span class="tag">较强</span>
+            <span class="tag">一般</span><span class="tag">较弱</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">是 否 愿 意 配 合 拍 短 视 频</label>
+          <div class="tag-group" data-name="short_video" data-mode="single">
+            <span class="tag">愿意</span><span class="tag">可商量</span><span class="tag">不愿意</span>
+          </div>
+        </div>
+
+        <div class="section-title">薪 资 与 合 作</div>
+
+        <div class="field">
+          <label class="label">薪 资 模 式<span class="req">*</span></label>
+          <div class="tag-group" data-name="salary_mode" data-mode="single">
+            <span class="tag">底薪+提成</span><span class="tag">纯提成</span>
+            <span class="tag">小时费</span><span class="tag">场次费</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">期 望 报 价<span class="req">*</span></label>
+          <input type="text" name="expected_salary" placeholder="如：底薪 XXXX+提成 X% / X 元/小时 / X 元/场">
+        </div>
+
+        <div class="section-title">资 料 上 传</div>
+
+        <div class="field">
+          <label class="label">素 颜 / 淡 妆 实 拍 <span class="hint">最多 4 张</span></label>
+          <div class="upload-section-hint">真实状态出镜照，便于判断镜头适配度</div>
+          <div class="upload-grid" id="anchorface-grid"></div>
+          <input type="file" accept="image/*" id="anchorface-input" multiple style="display:none;">
+        </div>
+
+        <div class="field">
+          <label class="label">直 播 切 片 / 短 视 频 <span class="hint">最多 3 段，单段 ≤ 30MB</span></label>
+          <div class="upload-section-hint">建议 15-60 秒精彩切片，最直观体现口才与镜头感</div>
+          <div class="upload-grid" id="video-grid"></div>
+          <input type="file" accept="video/*" id="video-input" multiple style="display:none;">
+        </div>
+      </div>
+
+      <!-- ========== 客服专属 ========== -->
+      <div class="role-fields" data-fields="service" style="display:none;">
+        <div class="section-title">专 业 信 息</div>
+
+        <div class="field">
+          <label class="label">意 向 岗 位<span class="req">*</span></label>
+          <div class="tag-group" data-name="job_intention" data-mode="single">
+            <span class="tag">全职</span><span class="tag">兼职</span>
+            <span class="tag">轮班</span><span class="tag">晚班</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">可 上 班 时 段 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="available_shifts" data-mode="multi">
+            <span class="tag">早班</span><span class="tag">中班</span>
+            <span class="tag">晚班</span><span class="tag">全天</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">客 服 / 销 售 经 验</label>
+          <textarea name="experience" placeholder="请简述工作经验"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">熟 悉 平 台 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="platforms" data-mode="multi">
+            <span class="tag">抖音</span><span class="tag">美团</span>
+            <span class="tag">大众点评</span><span class="tag">小红书</span>
+            <span class="tag">微信私域</span><span class="tag">淘宝</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">期 望 薪 资<span class="req">*</span></label>
+          <input type="text" name="expected_salary" placeholder="如：XXXX-XXXX 元/月 / 底薪 XXXX + 提成">
+        </div>
+      </div>
+
+      <!-- 作品集 / 形象照（妆造、礼服、摄影、修图、模特、主播都需要） -->
+      <div class="role-fields" data-fields="makeup dress photo retouch model anchor" style="display:none;">
+        <div class="section-title">作 品 集</div>
+        <div class="field">
+          <label class="label">作 品 集 / 形 象 照 <span class="hint">最多9张</span></label>
+          <div class="upload-grid" id="portfolio-grid"></div>
+          <input type="file" accept="image/*" id="portfolio-input" multiple style="display:none;">
+        </div>
+      </div>
+
+      <!-- 性格 & 自荐（所有岗位通用） -->
+      <div class="role-fields" data-fields="makeup dress photo retouch model anchor service" style="display:none;">
+        <div class="section-title">性 格 与 自 荐</div>
+
+        <div class="field">
+          <label class="label">性 格 类 型<span class="req">*</span></label>
+          <div class="tag-group" data-name="personality_type" data-mode="single">
+            <span class="tag">活泼外向</span><span class="tag">慢热适中</span><span class="tag">内向安静</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">沟 通 风 格 <span class="hint">可多选</span></label>
+          <div class="tag-group" data-name="comm_style" data-mode="multi">
+            <span class="tag">主动接待</span><span class="tag">擅长引导</span>
+            <span class="tag">耐心讲解</span><span class="tag">能聊天维护氛围</span>
+            <span class="tag">专业型沟通</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">MBTI <span class="hint">选填，知道则填</span></label>
+          <input type="text" name="mbti" placeholder="如：INFJ / ENFP 等，不知道可空着">
+        </div>
+
+        <div class="field">
+          <label class="label">性 格 介 绍 <span class="hint">用三五句话描述自己</span></label>
+          <textarea name="personality_intro" placeholder="如：日常话不多，但工作时认真专注；遇到熟悉的客人会主动聊..." style="min-height:90px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">自 我 推 荐<span class="req">*</span> <span class="hint">为什么选你</span></label>
+          <textarea name="self_recommend" placeholder="一段话突出自己的优势,可以从经验、技能、性格、特长任意角度切入..." style="min-height:110px;"></textarea>
+        </div>
+      </div>
+
+      <!-- 备注 -->
+      <div class="field" style="margin-top:30px;">
+        <label class="label">补 充 说 明 <span class="hint">选填</span></label>
+        <textarea name="remark" placeholder="任何想让我们知道的事..."></textarea>
+      </div>
+
+      <div class="submit-wrap">
+        <button type="submit" class="submit" id="submit-btn">提 交 档 案</button>
+        <div class="privacy">您的信息将仅用于云锦长安内部人才管理</div>
+      </div>
+    </form>
+
+    <div class="footer">— 云锦长安 · 守得云开 见汉服之美 —</div>
+  </div>
+
+  <!-- 提交成功页 -->
+  <div class="success" id="success-page">
+    <div class="success-seal">✓</div>
+    <h2>提 交 成 功</h2>
+    <p>
+      您的档案已收录至云锦长安人才库<br>
+      我们将于三个工作日内与您联系<br><br>
+      <span style="font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold);">Thank you for your application</span>
+    </p>
+  </div>
+</div>
+
+<script>
+/* ============== 数据存储（IndexedDB）============== */
+const DB_NAME = 'yunjin_talents';
+const STORE = 'talents';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE)) {
+        const store = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        store.createIndex('phone', 'phone', { unique: false });
+        store.createIndex('role_type', 'role_type', { unique: false });
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e);
+  });
+}
+
+async function saveTalent(data) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    const req = data.id ? store.put(data) : store.add(data);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = e => reject(e);
+  });
+}
+
+async function findByPhone(phone) {
+  const db = await openDB();
+  return new Promise(resolve => {
+    const tx = db.transaction(STORE, 'readonly');
+    const idx = tx.objectStore(STORE).index('phone');
+    const req = idx.getAll(phone);
+    req.onsuccess = () => {
+      // 排除黑名单的（因为黑名单走单独流程）
+      const records = (req.result || []).filter(r => r.blacklist_mark !== '永久拉黑');
+      resolve(records[0] || null);
+    };
+    req.onerror = () => resolve(null);
+  });
+}
+
+async function checkBlacklist(phone) {
+  const db = await openDB();
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const store = tx.objectStore(STORE);
+    const idx = store.index('phone');
+    const req = idx.getAll(phone);
+    req.onsuccess = () => {
+      const records = req.result || [];
+      const blocked = records.find(r => r.blacklist_mark === '永久拉黑');
+      resolve(blocked);
+    };
+    req.onerror = () => resolve(null);
+  });
+}
+
+/* ============== 状态 ============== */
+let currentRole = null;
+let selfieData = null;
+let portfolioData = []; // base64 array
+let tagSelections = {}; // {fieldName: 'value' or ['v1','v2']}
+
+/* ============== 角色切换 ============== */
+document.querySelectorAll('.role-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    currentRole = card.dataset.role;
+    document.getElementById('talent-form').classList.add('show');
+
+    document.querySelectorAll('.role-fields').forEach(fs => {
+      const roles = fs.dataset.fields.split(' ');
+      fs.style.display = roles.includes(currentRole) ? 'block' : 'none';
+    });
+
+    tagSelections = {};
+    setTimeout(() => {
+      document.getElementById('talent-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // 角色切换后初始化各上传组的渲染
+      renderPortfolio();
+      initMediaGroups();
+    }, 100);
+  });
+});
+
+/* ============== Tag 选择 ============== */
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('tag')) return;
+  const group = e.target.closest('.tag-group');
+  if (!group) return;
+  const mode = group.dataset.mode;
+  const name = group.dataset.name;
+  if (mode === 'single') {
+    group.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    tagSelections[name] = e.target.textContent.trim();
+  } else {
+    e.target.classList.toggle('active');
+    const vals = [...group.querySelectorAll('.tag.active')].map(t => t.textContent.trim());
+    tagSelections[name] = vals;
+  }
+});
+
+/* ============== 图片上传：转 base64（前端 demo 模式）============== */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    // 压缩
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 800;
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* 自拍上传 */
+const selfieCell = document.getElementById('selfie-cell');
+const selfieInput = document.getElementById('selfie-input');
+selfieCell.addEventListener('click', () => selfieInput.click());
+selfieInput.addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const b64 = await fileToBase64(file);
+  selfieData = b64;
+  selfieCell.innerHTML = `<img src="${b64}"><span class="del" data-type="selfie">×</span>`;
+  selfieCell.classList.add('has-img');
+});
+
+/* 作品集上传 */
+function renderPortfolio() {
+  const grid = document.getElementById('portfolio-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  portfolioData.forEach((b64, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'upload-cell has-img';
+    cell.innerHTML = `<img src="${b64}"><span class="del" data-type="portfolio" data-idx="${i}">×</span>`;
+    grid.appendChild(cell);
+  });
+  if (portfolioData.length < 9) {
+    const add = document.createElement('div');
+    add.className = 'upload-cell';
+    add.innerHTML = '<span class="plus">+</span>';
+    add.addEventListener('click', () => document.getElementById('portfolio-input').click());
+    grid.appendChild(add);
+  }
+}
+document.getElementById('portfolio-input').addEventListener('change', async e => {
+  const files = [...e.target.files].slice(0, 9 - portfolioData.length);
+  for (const f of files) {
+    const b64 = await fileToBase64(f);
+    portfolioData.push(b64);
+  }
+  renderPortfolio();
+  e.target.value = '';
+});
+
+/* ===== 通用图片/视频上传工厂（模特/主播专属资料）===== */
+const mediaGroups = {
+  modelcard:  { data: [], gridId: 'modelcard-grid',  inputId: 'modelcard-input',  max: 6, type: 'image' },
+  bareface:   { data: [], gridId: 'bareface-grid',   inputId: 'bareface-input',   max: 6, type: 'image' },
+  daily:      { data: [], gridId: 'daily-grid',      inputId: 'daily-input',      max: 6, type: 'image' },
+  anchorface: { data: [], gridId: 'anchorface-grid', inputId: 'anchorface-input', max: 4, type: 'image' },
+  video:      { data: [], gridId: 'video-grid',      inputId: 'video-input',      max: 3, type: 'video' }
+};
+
+function renderMediaGroup(key) {
+  const g = mediaGroups[key];
+  const grid = document.getElementById(g.gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  g.data.forEach((item, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'upload-cell has-img';
+    if (g.type === 'video') {
+      const sizeMB = item.size ? (item.size / 1024 / 1024).toFixed(1) + 'M' : '';
+      cell.innerHTML = `
+        <video src="${item.url}" muted preload="metadata"></video>
+        <span class="video-mark">视频</span>
+        ${sizeMB ? `<span class="video-size">${sizeMB}</span>` : ''}
+        <span class="del" data-media="${key}" data-idx="${i}">×</span>
+      `;
+    } else {
+      cell.innerHTML = `<img src="${item.url || item}"><span class="del" data-media="${key}" data-idx="${i}">×</span>`;
+    }
+    grid.appendChild(cell);
+  });
+  if (g.data.length < g.max) {
+    const add = document.createElement('div');
+    add.className = 'upload-cell';
+    add.innerHTML = '<span class="plus">+</span>';
+    add.addEventListener('click', () => document.getElementById(g.inputId).click());
+    grid.appendChild(add);
+  }
+}
+
+function bindMediaInput(key) {
+  const g = mediaGroups[key];
+  const input = document.getElementById(g.inputId);
+  if (!input) return;
+  input.addEventListener('change', async e => {
+    const files = [...e.target.files].slice(0, g.max - g.data.length);
+    for (const f of files) {
+      if (g.type === 'video') {
+        if (f.size > 30 * 1024 * 1024) {
+          alert(`视频「${f.name}」超过 30MB，请压缩后上传`);
+          continue;
+        }
+        // 视频转 base64
+        const url = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = e => res(e.target.result);
+          r.onerror = rej;
+          r.readAsDataURL(f);
+        });
+        g.data.push({ url, size: f.size, name: f.name });
+      } else {
+        const b64 = await fileToBase64(f);
+        g.data.push({ url: b64 });
+      }
+    }
+    renderMediaGroup(key);
+    e.target.value = '';
+  });
+}
+
+['modelcard','bareface','daily','anchorface','video'].forEach(bindMediaInput);
+
+/* 在角色切换时初始化各组 */
+function initMediaGroups() {
+  ['modelcard','bareface','daily','anchorface','video'].forEach(renderMediaGroup);
+}
+
+/* 删除图片 */
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('del')) return;
+  if (e.target.dataset.type === 'selfie') {
+    selfieData = null;
+    selfieCell.innerHTML = `<span class="plus">+</span>`;
+    selfieCell.classList.remove('has-img');
+    e.stopPropagation();
+  } else if (e.target.dataset.type === 'portfolio') {
+    portfolioData.splice(+e.target.dataset.idx, 1);
+    renderPortfolio();
+  } else if (e.target.dataset.media) {
+    const key = e.target.dataset.media;
+    mediaGroups[key].data.splice(+e.target.dataset.idx, 1);
+    renderMediaGroup(key);
+  }
+});
+
+/* ============== 提交 ============== */
+document.getElementById('submit-btn').addEventListener('click', async () => {
+  if (!currentRole) { alert('请先选择应聘岗位'); return; }
+  const form = document.getElementById('talent-form');
+  const fd = new FormData(form);
+  const data = { role_type: currentRole, created_at: new Date().toISOString() };
+  for (const [k,v] of fd.entries()) data[k] = v;
+  Object.assign(data, tagSelections);
+  data.selfie_url = selfieData;
+  data.portfolio_urls = [...portfolioData];
+  // 新增媒体资料（模特/主播）
+  data.modelcard_urls = mediaGroups.modelcard.data.map(x => x.url);
+  data.bareface_urls = mediaGroups.bareface.data.map(x => x.url);
+  data.daily_urls = mediaGroups.daily.data.map(x => x.url);
+  data.anchorface_urls = mediaGroups.anchorface.data.map(x => x.url);
+  data.video_urls = mediaGroups.video.data.map(x => ({ url: x.url, size: x.size, name: x.name }));
+
+  // 必填校验
+  if (!data.name || !data.phone || !data.wechat) {
+    alert('请填写姓名、手机、微信号'); return;
+  }
+  if (!/^1[3-9]\d{9}$/.test(data.phone)) {
+    alert('手机号格式不正确'); return;
+  }
+
+  // 黑名单拦截（静默）
+  const blocked = await checkBlacklist(data.phone);
+  if (blocked) {
+    // 假装成功，但不入库（前端展示，避免对方知道被拉黑）
+    setTimeout(() => {
+      document.getElementById('main-page').style.display = 'none';
+      document.getElementById('success-page').classList.add('show');
+      window.scrollTo(0,0);
+    }, 800);
+    return;
+  }
+
+  // 重复手机号检测（非黑名单）
+  const existing = await findByPhone(data.phone);
+  if (existing) {
+    const confirmUpdate = confirm(
+      `检测到此手机号已登记过档案：\n\n姓名:${existing.name}\n岗位:${{makeup:'妆造师',dress:'礼服师',photo:'摄影师',retouch:'修图师',model:'模特',anchor:'主播',service:'客服'}[existing.role_type]}\n登记时间:${new Date(existing.created_at).toLocaleDateString()}\n\n是否更新该档案？\n点「确定」覆盖更新，点「取消」放弃提交`
+    );
+    if (!confirmUpdate) return;
+    data.id = existing.id;
+    // 保留原有的内部评价/客诉/档期等数据
+    data.tech_rating = existing.tech_rating;
+    data.quality_rating = existing.quality_rating;
+    data.service_rating = existing.service_rating;
+    data.work_count = existing.work_count || 0;
+    data.complaint_count = existing.complaint_count || 0;
+    data.complaints = existing.complaints || [];
+    data.calendar_busy = existing.calendar_busy || [];
+    data.calendar_free = existing.calendar_free || [];
+    data.trial_images = existing.trial_images || [];
+    data.dispatch_records = existing.dispatch_records || [];
+    data.contact_records = existing.contact_records || [];
+    data.payment_records = existing.payment_records || [];
+    data.live_sessions = existing.live_sessions || [];
+    data.flags = existing.flags || [];
+    data.status = existing.status || data.status;
+    data.blacklist_mark = existing.blacklist_mark || '正常';
+    data.pros_cons = existing.pros_cons || '';
+    data.created_at = existing.created_at;
+    data.updated_at = new Date().toISOString();
+  } else {
+    // 初始字段
+    data.status = currentRole === 'service' ? '在职' : (currentRole === 'model' ? '待试拍' : currentRole === 'anchor' ? '待试播' : '待复试');
+    data.blacklist_mark = '正常';
+    data.work_count = 0;
+    data.complaint_count = 0;
+  }
+
+  try {
+    await saveTalent(data);
+    document.getElementById('main-page').style.display = 'none';
+    document.getElementById('success-page').classList.add('show');
+    window.scrollTo(0,0);
+  } catch (e) {
+    alert('提交失败，请重试');
+    console.error(e);
+  }
+});
+</script>
+</body>
+</html>
