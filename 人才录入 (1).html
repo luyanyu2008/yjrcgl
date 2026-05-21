@@ -381,7 +381,7 @@
       <div class="section-title">基 础 信 息</div>
 
       <div class="field" style="text-align:center;">
-        <div class="label" style="justify-content:center;">自 拍 照<span class="req">*</span></div>
+        <div class="label" style="justify-content:center;">自 拍 照</div>
         <div class="selfie-cell" id="selfie-cell">
           <span class="plus">+</span>
           <input type="file" accept="image/*" id="selfie-input" style="display:none;">
@@ -1209,8 +1209,12 @@
       </div>
 
       <div class="submit-wrap">
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;font-size:12px;color:var(--ink-soft);line-height:1.7;cursor:pointer;">
+          <input type="checkbox" id="privacy-agree" style="margin-top:3px;flex-shrink:0;">
+          <span>我已阅读并同意:本人所填写的姓名、联系方式、照片等信息,由云锦长安用于内部人才招募、档期联络与合作管理,我授权对方在上述范围内存储和使用这些信息。</span>
+        </label>
         <button type="submit" class="submit" id="submit-btn">提 交 档 案</button>
-        <div class="privacy">您的信息将仅用于云锦长安内部人才管理</div>
+        <div class="privacy">云锦长安承诺:您的信息仅用于内部人才管理,不会向第三方出售或泄露</div>
       </div>
     </form>
 
@@ -1233,16 +1237,26 @@
 /* ============== 数据存储（IndexedDB）============== */
 const DB_NAME = 'yunjin_talents';
 const STORE = 'talents';
+const TRASH_STORE = 'trash';
+const LOG_STORE = 'oplog';
+const DB_VERSION = 2;
 
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE)) {
         const store = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
         store.createIndex('phone', 'phone', { unique: false });
         store.createIndex('role_type', 'role_type', { unique: false });
+      }
+      // v2 新增：回收站 + 操作日志（与管理后台保持一致）
+      if (!db.objectStoreNames.contains(TRASH_STORE)) {
+        db.createObjectStore(TRASH_STORE, { keyPath: 'trash_id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(LOG_STORE)) {
+        db.createObjectStore(LOG_STORE, { keyPath: 'log_id', autoIncrement: true });
       }
     };
     req.onsuccess = e => resolve(e.target.result);
@@ -1276,19 +1290,34 @@ async function findByPhone(phone) {
   });
 }
 
-async function checkBlacklist(phone) {
+async function checkBlacklist(phone, wechat, name, residence) {
   const db = await openDB();
   return new Promise((resolve) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const store = tx.objectStore(STORE);
-    const idx = store.index('phone');
-    const req = idx.getAll(phone);
-    req.onsuccess = () => {
-      const records = req.result || [];
-      const blocked = records.find(r => r.blacklist_mark === '永久拉黑');
-      resolve(blocked);
-    };
-    req.onerror = () => resolve(null);
+    try {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => {
+        try {
+          const all = req.result || [];
+          const blacklisted = all.filter(r => r && r.blacklist_mark === '永久拉黑');
+          const blocked = blacklisted.find(r => {
+            if (phone && r.phone && r.phone === phone) return true;
+            if (wechat && r.wechat && wechat && r.wechat.toLowerCase() === wechat.toLowerCase()) return true;
+            // 姓名+区域双重命中才算(避免误伤同名)
+            if (name && residence && r.name === name && r.residence === residence) return true;
+            return false;
+          });
+          resolve(blocked || null);
+        } catch (e) {
+          console.error('黑名单匹配出错:', e);
+          resolve(null);
+        }
+      };
+      req.onerror = () => resolve(null);
+    } catch (e) {
+      console.error('打开数据库事务出错:', e);
+      resolve(null);
+    }
   });
 }
 
@@ -1500,89 +1529,254 @@ document.addEventListener('click', e => {
   }
 });
 
-/* ============== 提交 ============== */
-document.getElementById('submit-btn').addEventListener('click', async () => {
-  if (!currentRole) { alert('请先选择应聘岗位'); return; }
-  const form = document.getElementById('talent-form');
-  const fd = new FormData(form);
-  const data = { role_type: currentRole, created_at: new Date().toISOString() };
-  for (const [k,v] of fd.entries()) data[k] = v;
-  Object.assign(data, tagSelections);
-  data.selfie_url = selfieData;
-  data.portfolio_urls = [...portfolioData];
-  // 新增媒体资料（模特/主播）
-  data.modelcard_urls = mediaGroups.modelcard.data.map(x => x.url);
-  data.bareface_urls = mediaGroups.bareface.data.map(x => x.url);
-  data.daily_urls = mediaGroups.daily.data.map(x => x.url);
-  data.anchorface_urls = mediaGroups.anchorface.data.map(x => x.url);
-  data.video_urls = mediaGroups.video.data.map(x => ({ url: x.url, size: x.size, name: x.name }));
-
-  // 必填校验
-  if (!data.name || !data.phone || !data.wechat) {
-    alert('请填写姓名、手机、微信号'); return;
-  }
-  if (!/^1[3-9]\d{9}$/.test(data.phone)) {
-    alert('手机号格式不正确'); return;
-  }
-
-  // 黑名单拦截（静默）
-  const blocked = await checkBlacklist(data.phone);
-  if (blocked) {
-    // 假装成功，但不入库（前端展示，避免对方知道被拉黑）
-    setTimeout(() => {
-      document.getElementById('main-page').style.display = 'none';
-      document.getElementById('success-page').classList.add('show');
-      window.scrollTo(0,0);
-    }, 800);
+/* ============== 提交（彻底重写版 v3） ============== */
+function attachSubmitHandler() {
+  const submitBtn = document.getElementById('submit-btn');
+  if (!submitBtn) {
+    console.error('找不到提交按钮');
     return;
   }
+  // 移除旧监听器(防止多次绑定)
+  const newBtn = submitBtn.cloneNode(true);
+  submitBtn.parentNode.replaceChild(newBtn, submitBtn);
 
-  // 重复手机号检测（非黑名单）
-  const existing = await findByPhone(data.phone);
-  if (existing) {
-    const confirmUpdate = confirm(
-      `检测到此手机号已登记过档案：\n\n姓名:${existing.name}\n岗位:${{makeup:'妆造师',dress:'礼服师',photo:'摄影师',retouch:'修图师',model:'模特',anchor:'主播',service:'客服'}[existing.role_type]}\n登记时间:${new Date(existing.created_at).toLocaleDateString()}\n\n是否更新该档案？\n点「确定」覆盖更新，点「取消」放弃提交`
-    );
-    if (!confirmUpdate) return;
-    data.id = existing.id;
-    // 保留原有的内部评价/客诉/档期等数据
-    data.tech_rating = existing.tech_rating;
-    data.quality_rating = existing.quality_rating;
-    data.service_rating = existing.service_rating;
-    data.work_count = existing.work_count || 0;
-    data.complaint_count = existing.complaint_count || 0;
-    data.complaints = existing.complaints || [];
-    data.calendar_busy = existing.calendar_busy || [];
-    data.calendar_free = existing.calendar_free || [];
-    data.trial_images = existing.trial_images || [];
-    data.dispatch_records = existing.dispatch_records || [];
-    data.contact_records = existing.contact_records || [];
-    data.payment_records = existing.payment_records || [];
-    data.live_sessions = existing.live_sessions || [];
-    data.flags = existing.flags || [];
-    data.status = existing.status || data.status;
-    data.blacklist_mark = existing.blacklist_mark || '正常';
-    data.pros_cons = existing.pros_cons || '';
-    data.created_at = existing.created_at;
-    data.updated_at = new Date().toISOString();
-  } else {
-    // 初始字段
-    data.status = currentRole === 'service' ? '在职' : (currentRole === 'model' ? '待试拍' : currentRole === 'anchor' ? '待试播' : '待复试');
-    data.blacklist_mark = '正常';
-    data.work_count = 0;
-    data.complaint_count = 0;
-  }
+  newBtn.addEventListener('click', async function handleSubmit(ev) {
+    ev.preventDefault();
+    console.log('[提交] 按钮被点击');
 
-  try {
-    await saveTalent(data);
-    document.getElementById('main-page').style.display = 'none';
-    document.getElementById('success-page').classList.add('show');
-    window.scrollTo(0,0);
-  } catch (e) {
-    alert('提交失败，请重试');
-    console.error(e);
-  }
-});
+    try {
+      // === 第一步:基础检查 ===
+      if (!currentRole) {
+        alert('请先选择应聘岗位（页面顶部）');
+        return;
+      }
+      console.log('[提交] 当前岗位:', currentRole);
+
+      // === 第二步:扫描必填项 ===
+      const missing = [];
+      let firstMissingEl = null;
+
+      // 扫描所有 .field
+      const allFields = document.querySelectorAll('.field');
+      console.log('[提交] 总字段数:', allFields.length);
+
+      allFields.forEach(function(field) {
+        // 判断字段是否在当前可见区域:检查父级 .role-fields 是否 display:none
+        let parent = field.closest('.role-fields');
+        if (parent) {
+          const display = parent.style.display;
+          if (display === 'none') return; // 隐藏区域不检查
+        }
+
+        // 是否带必填星号
+        const reqMark = field.querySelector('.req');
+        if (!reqMark) return;
+
+        // 取标签名
+        const labelEl = field.querySelector('.label');
+        let labelText = '某必填项';
+        if (labelEl) {
+          // 克隆并去掉里面的 .hint 和 .req,只保留主标题
+          const clone = labelEl.cloneNode(true);
+          clone.querySelectorAll('.hint, .req').forEach(e => e.remove());
+          labelText = clone.textContent.replace(/\s+/g, '').trim();
+          if (!labelText) labelText = '某必填项';
+        }
+
+        // 检查 1:输入框
+        const input = field.querySelector('input[type=text], input[type=tel], input[type=number], textarea');
+        if (input) {
+          if (!input.value || !input.value.trim()) {
+            missing.push(labelText);
+            if (!firstMissingEl) firstMissingEl = field;
+          }
+          return;
+        }
+        // 检查 2:标签组
+        const tagGroup = field.querySelector('.tag-group');
+        if (tagGroup) {
+          const fieldName = tagGroup.dataset.name;
+          const selected = tagSelections[fieldName];
+          const hasValue = Array.isArray(selected) ? selected.length > 0 : !!selected;
+          if (!hasValue) {
+            missing.push(labelText);
+            if (!firstMissingEl) firstMissingEl = field;
+          }
+          return;
+        }
+      });
+
+      console.log('[提交] 缺失项:', missing);
+
+      // === 第三步:手机号校验 ===
+      const phoneInput = document.querySelector('input[name="phone"]');
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      if (phone && !/^1[3-9]\d{9}$/.test(phone)) {
+        if (!missing.includes('手机')) missing.push('手机号格式不对(必须是 11 位)');
+        if (!firstMissingEl && phoneInput) firstMissingEl = phoneInput.closest('.field');
+      }
+
+      // === 第四步:有缺失就提示并定位 ===
+      if (missing.length > 0) {
+        const msg = '还有 ' + missing.length + ' 项必填没完成:\n\n' +
+                    missing.map((m,i) => (i+1) + '. ' + m).join('\n') +
+                    '\n\n请补充后再点提交。';
+        alert(msg);
+
+        // 滚动到第一个缺失项并红色高亮
+        if (firstMissingEl) {
+          firstMissingEl.style.background = 'rgba(160,44,44,0.12)';
+          firstMissingEl.style.padding = '8px';
+          firstMissingEl.style.borderLeft = '3px solid #a02c2c';
+          setTimeout(function() {
+            try {
+              firstMissingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch(e) { /* 旧浏览器忽略 */ }
+          }, 100);
+          setTimeout(function() {
+            firstMissingEl.style.background = '';
+            firstMissingEl.style.padding = '';
+            firstMissingEl.style.borderLeft = '';
+          }, 4000);
+        }
+        return;
+      }
+
+      // === 第五步:隐私同意检查 ===
+      console.log('[提交] 步骤5:检查隐私同意');
+      const privacyBox = document.getElementById('privacy-agree');
+      if (!privacyBox || !privacyBox.checked) {
+        alert('请勾选页面底部的「信息使用授权」选项');
+        if (privacyBox) {
+          try { privacyBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+        }
+        return;
+      }
+
+      // === 第六步:开始正式提交 ===
+      console.log('[提交] 步骤6:开始收集数据');
+      newBtn.disabled = true;
+      newBtn.textContent = '提 交 中…';
+
+      // 收集表单数据
+      const form = document.getElementById('talent-form');
+      const fd = new FormData(form);
+      const data = { role_type: currentRole, created_at: new Date().toISOString() };
+      for (const [k, v] of fd.entries()) data[k] = v;
+      Object.assign(data, tagSelections);
+      data.selfie_url = selfieData;
+      data.portfolio_urls = portfolioData ? [...portfolioData] : [];
+      data.modelcard_urls = (mediaGroups.modelcard?.data || []).map(x => x.url);
+      data.bareface_urls = (mediaGroups.bareface?.data || []).map(x => x.url);
+      data.daily_urls = (mediaGroups.daily?.data || []).map(x => x.url);
+      data.anchorface_urls = (mediaGroups.anchorface?.data || []).map(x => x.url);
+      data.video_urls = (mediaGroups.video?.data || []).map(x => ({ url: x.url, size: x.size, name: x.name }));
+      data.privacy_agreed = true;
+      data.privacy_agreed_at = new Date().toISOString();
+
+      console.log('[提交] 步骤7:数据已收集,phone=', data.phone, ', 开始查黑名单');
+
+      // 黑名单(加超时保护,5秒还没返回就直接跳过)
+      let blocked = null;
+      try {
+        blocked = await Promise.race([
+          checkBlacklist(data.phone, data.wechat, data.name, data.residence),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('查黑名单超时(5秒),数据库可能损坏')), 5000))
+        ]);
+        console.log('[提交] 步骤8:黑名单查完,blocked=', !!blocked);
+      } catch (e) {
+        console.error('[提交] 黑名单查询出错:', e);
+        alert('数据库查询出错:\n' + e.message + '\n\n这通常是数据库版本冲突造成的。\n请按 Ctrl+Shift+Delete 清除浏览器缓存后重试。');
+        newBtn.disabled = false;
+        newBtn.textContent = '提 交 档 案';
+        return;
+      }
+
+      if (blocked) {
+        setTimeout(function() {
+          document.getElementById('main-page').style.display = 'none';
+          document.getElementById('success-page').classList.add('show');
+          window.scrollTo(0, 0);
+        }, 800);
+        return;
+      }
+
+      // 重复检测(同样加超时)
+      console.log('[提交] 步骤9:查重复手机号');
+      let existing = null;
+      try {
+        existing = await Promise.race([
+          findByPhone(data.phone),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('查重复超时')), 5000))
+        ]);
+        console.log('[提交] 步骤10:查重完成,existing=', !!existing);
+      } catch (e) {
+        console.error('[提交] 查重出错:', e);
+        // 查重失败不阻塞提交,当作没重复处理
+        existing = null;
+      }
+
+      if (existing) {
+        const roleNames = { makeup:'妆造师', dress:'礼服师', photo:'摄影师', retouch:'修图师', model:'模特', anchor:'主播', service:'客服' };
+        const ok = confirm(
+          '此手机号已登记过档案:\n\n' +
+          '姓名:' + existing.name + '\n' +
+          '岗位:' + roleNames[existing.role_type] + '\n' +
+          '登记日期:' + new Date(existing.created_at).toLocaleDateString() + '\n\n' +
+          '点「确定」= 更新档案（保留原有评价/客诉/档期等内部数据）\n' +
+          '点「取消」= 放弃提交'
+        );
+        if (!ok) {
+          newBtn.disabled = false;
+          newBtn.textContent = '提 交 档 案';
+          return;
+        }
+        data.id = existing.id;
+        const keep = ['tech_rating','quality_rating','service_rating','complaints','calendar_busy','calendar_free','trial_images','dispatch_records','contact_records','payment_records','live_sessions','flags','blacklist_mark','pros_cons','ai_notes','ai_history','manual_notes'];
+        keep.forEach(k => { if (existing[k] !== undefined) data[k] = existing[k]; });
+        data.work_count = existing.work_count || 0;
+        data.complaint_count = existing.complaint_count || 0;
+        data.status = existing.status;
+        data.created_at = existing.created_at;
+        data.updated_at = new Date().toISOString();
+      } else {
+        data.status = currentRole === 'service' ? '在职'
+                    : currentRole === 'model' ? '待试拍'
+                    : currentRole === 'anchor' ? '待试播'
+                    : '待复试';
+        data.blacklist_mark = '正常';
+        data.work_count = 0;
+        data.complaint_count = 0;
+      }
+
+      console.log('[提交] 步骤11:开始保存数据');
+      try {
+        await Promise.race([
+          saveTalent(data),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('保存超时,可能数据过大或数据库故障')), 10000))
+        ]);
+        console.log('[提交] 步骤12:保存成功!');
+      } catch (e) {
+        console.error('[提交] 保存失败:', e);
+        throw e; // 抛到外层 try-catch 显示给用户
+      }
+
+      // 成功
+      document.getElementById('main-page').style.display = 'none';
+      document.getElementById('success-page').classList.add('show');
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      console.error('[提交错误]', err);
+      alert('提交时出现问题:\n\n' + (err && err.message ? err.message : String(err)) + '\n\n请截图此提示反馈给管理员。');
+      newBtn.disabled = false;
+      newBtn.textContent = '提 交 档 案';
+    }
+  });
+}
+
+// 启动时绑定
+attachSubmitHandler();
 </script>
 </body>
 </html>
